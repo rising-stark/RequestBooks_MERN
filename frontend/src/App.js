@@ -1,6 +1,5 @@
 import React from "react";
 import { Routes, Route } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import Header from "./components/Header";
 import Home from "./components/Home";
@@ -13,7 +12,8 @@ import Logout from "./components/Logout";
 import PrivateRoute from './components/PrivateRoute';
 
 function App() {
-  const [cookies, setCookie] = useCookies();
+  const [cookies] = useCookies();
+  console.log("Printing cookies in react App.js")
   console.log(cookies)
   return (
     <React.Fragment>
@@ -21,7 +21,12 @@ function App() {
       <Routes>
         <Route exact path='/' element={<PrivateRoute auth={cookies.username != null} redirectpath="login" />} >
           <Route exact path="/" element={<Home />} />
-          <Route exact path="/requestbook" element={<RequestBook />} />
+          <Route exact path='/' element={<PrivateRoute auth={cookies.usertype === "user"} redirectpath="/" />} >
+            <Route exact path="/requestbook" element={<RequestBook />} />
+          </Route>
+          <Route exact path='/' element={<PrivateRoute auth={cookies.usertype === "admin"} redirectpath="/" />} >
+            <Route exact path="/addemployee" element={<Register usertype = "admin"/>} />
+          </Route>
           <Route exact path="/logout" element={<Logout />}/>
         </Route>
         <Route path="/about" element={<About />} exact />

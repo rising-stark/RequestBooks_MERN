@@ -23,6 +23,9 @@ const RequestBook = () => {
       const res = await fetch('http://localhost:5000/', {
         method : "POST",
         credentials : "include",
+        headers : {
+          "Content-Type" : "application/json"
+        },
         body : JSON.stringify({name, author, description, price})
       })
       console.log(res.status)

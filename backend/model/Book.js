@@ -16,6 +16,11 @@ const bookSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  bookstate_int: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
   bookstate: {
     type: String,
     required: true,

@@ -25,7 +25,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="row d-flex justify-content-between pt-4 mt-4 border-top">
-          <p>© 2021 Company, Inc. All rights reserved.</p>
+          <p>© 2022 Company, Inc. All rights reserved.</p>
         </div>
       </div>
     </footer>

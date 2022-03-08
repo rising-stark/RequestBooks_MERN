@@ -5,3 +5,6 @@
 .nav-link.active{
   text-decoration: underline;
 }
+div.datatable div{
+  white-space: normal!important;
+}

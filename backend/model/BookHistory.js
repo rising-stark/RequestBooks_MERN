@@ -9,7 +9,7 @@ const bookHistorySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  action: {
+  bookstate: {
     type: String,
     required: true,
   },

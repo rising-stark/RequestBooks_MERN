@@ -7,17 +7,28 @@ const Header = (props) => {
     <nav className="navbar navbar-expand-lg navbar-light shadow">
       <div className="collapse navbar-collapse px-3">
         <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-          <li className="nav-item">
-            <NavLink className="nav-link" to="/">Home</NavLink>
-          </li>
           {
-            props.usertype == "user" ?
-            <li className="nav-item">
-              <NavLink className="nav-link" to="/requestbook">Request a book</NavLink>
-            </li>
+            props.auth ?
+              <li className="nav-item">
+                <NavLink className="nav-link" to="/">Home</NavLink>
+              </li>
             :
-            <>
-            </>
+              <>
+              </>
+          }
+          {
+            props.usertype === "user" ?
+              <li className="nav-item">
+                <NavLink className="nav-link" to="/requestbook">Request a book</NavLink>
+              </li>
+            :
+              props.usertype === "admin" ?
+                <li className="nav-item">
+                  <NavLink className="nav-link" to="/addemployee">Register new employee</NavLink>
+                </li>
+              :
+                <>
+                </>
           }
           <li className="nav-item">
             <NavLink className="nav-link" to="/about">About Us</NavLink>

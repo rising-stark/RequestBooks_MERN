@@ -60,27 +60,31 @@ const login = async (req, res, next) => {
     }
   } catch (err) {
     console.log(err);
+    return res.status(400).send("Server error");
   }
 };
 
 const registerUser = async (req, res, next) => {
   const { username, email, name, password } = req.body;
   let user;
+  usertype = "user";
+  if(req.cookies && req.cookies.usertype === "admin")
+    usertype = "employee";
   try {
-  user = new User({
-    username,
-    email,
-    name,
-    password,
-    usertype: "user",
-  });
-  console.log(user);
-  await user.save();
+    user = new User({
+      username,
+      email,
+      name,
+      password,
+      usertype
+    });
+    console.log(user);
+    await user.save();
   } catch (err) {
-  console.log(err);
-  res.status(400).send(err);
+    console.log(err);
+    return res.status(400).send("Server error");
   }
-  res.status(200).send("Registered new user");
+  return res.status(200).send("Registered new user");
 };
 
 const logout = async (req, res, next) => {
