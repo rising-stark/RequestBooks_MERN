@@ -16,7 +16,7 @@ const book_state_dict = {
   7: "Book request deleted",
 }
 
-const updateHandledBy = async (id) => {
+const updateBookHandledBy = async (id) => {
   const res = await fetch(`http://localhost:5000/updatehandledby/${id}`, {
     method: "PUT",
     credentials: "include"
@@ -29,7 +29,7 @@ const updateHandledBy = async (id) => {
   }
 };
 
-const updateStatusHandler = async (id, bookstate_int) => {
+const updateBookStatus = async (id, bookstate_int) => {
   const res = await fetch(`http://localhost:5000/updatestatus/${id}`, {
     method: "PUT",
     credentials: "include",
@@ -49,105 +49,113 @@ const updateStatusHandler = async (id, bookstate_int) => {
   }
 };
 
-function getColumns(cookies){
-  let columns = [
-    {
-      name: 'Book name',
-      selector: 'name',
-      sortable: true,
-    },
-    {
-      name: 'Author name',
-      selector: 'author',
-      sortable: true,
-    },
-    {
-      name: 'Description',
-      selector: 'description',
-      sortable: true,
-    },
-    {
-      name: 'Price',
-      selector: 'price',
-      sortable: true,
-    },
-    {
-      name: 'Requested time',
-      selector: 'requestedat',
-      sortable: true,
-    },
-    {
-      name: 'Employee Handling',
-      selector: 'handledby',
-      sortable: true,
-    },
-    {
-      name: 'Book state',
-      selector: 'bookstate',
-      sortable: true,
-    },
-    {
-      name: '',
-      selector: 'a1'
-    },
-    {
-      name: '',
-      selector: 'a2'
-    },
-    {
-      name: '',
-      selector: 'a3'
-    },
-  ];
+const deleteUser = async (id) => {
+  const res = await fetch(`http://localhost:5000/users/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  })
+  if (res && res.status === 200) {
+    alert("User deleted successfully");
+    window.location.reload();
+  }else{
+    alert("Some error occured. Pls try again later");
+  }
+};
+
+function getColumns(pagetype){
+  let columns = [];
+  if(pagetype === "home"){
+    columns = [
+      {
+        name: 'Book name',
+        selector: 'name',
+        sortable: true,
+      },
+      {
+        name: 'Author name',
+        selector: 'author',
+        sortable: true,
+      },
+      {
+        name: 'Description',
+        selector: 'description',
+        sortable: true,
+      },
+      {
+        name: 'Price',
+        selector: 'price',
+        sortable: true,
+      },
+      {
+        name: 'Requested time',
+        selector: 'requestedat',
+        sortable: true,
+      },
+      {
+        name: 'Employee Handling',
+        selector: 'handledby',
+        sortable: true,
+      },
+      {
+        name: 'Book state',
+        selector: 'bookstate',
+        sortable: true,
+      },
+      {
+        name: '',
+        selector: 'a1'
+      },
+      {
+        name: '',
+        selector: 'a2'
+      },
+      {
+        name: '',
+        selector: 'a3'
+      },
+    ];
+  }else if(pagetype === "users"){
+    columns = [
+      {
+        name: 'Name',
+        selector: 'name',
+        sortable: true,
+      },
+      {
+        name: 'Email',
+        selector: 'email',
+        sortable: true,
+      },
+      {
+        name: 'User Type',
+        selector: 'usertype',
+        sortable: true,
+      },
+      {
+        name: '',
+        selector: 'a1'
+      },
+    ];
+  }
   return columns;
 }
 
-const getData = async (cookies) => {
+const getUserData = async (cookies) => {
   try {
-    const res = await fetch('http://localhost:5000/', {
+    const res = await fetch('http://localhost:5000/users', {
       method: "GET",
       credentials: "include"
     })
     console.log(res.status);
-    const books = await res.json();
-    console.log(books.books);
+    const data = (await res.json()).users;
+    console.log(data);
     if (res && res.status === 200) {
-      let data = books.books;
       for (let i = 0; i < data.length; i++) {
-          console.log("Here printing in loop")
-          console.log("usertype = "+cookies.usertype)
-          console.log("data = "+JSON.stringify(data[i]))
-          console.log("bookstate = "+data[i].bookstate_int)
-          console.log("handledby = "+data[i].handledby)
-        data[i].a1 = <NavLink
-            to={"/bookhistory/" + data[i]._id} className="btn btn-primary rounded-pill">
-            History
-          </NavLink>
-        if(cookies.usertype === "user"){
-          if(data[i].bookstate_int === 0){
-            data[i].a2 = <button className="btn btn-danger" onClick={ () => updateStatusHandler(data[i]._id, 7)}>Delete book request</button>
-          }else if(data[i].bookstate_int === 0){
-            data[i].a2 = <button className="btn btn-danger" onClick={ () => updateStatusHandler(data[i]._id, 7)}>Delete book request</button>
-          }
-        }else if(cookies.usertype === "employee"){
-          if(data[i].bookstate_int === 0){
-            data[i].a2 = <button className="btn btn-danger" onClick={ () => updateHandledBy(data[i]._id)}>Assign to self</button>
-          }else{
-            if(data[i].handledby === cookies.username && data[i].bookstate_int === (1 || 3)){
-              data[i].a2 = <button className="btn btn-info" onClick={ () => updateStatusHandler(data[i]._id, 2)}>Ask more info</button>
-              data[i].a3 = <button className="btn btn-success" onClick={ () => updateStatusHandler(data[i]._id, 5)}>Approve</button>
-              data[i].a4 = <button className="btn btn-warning" onClick={ () => updateStatusHandler(data[i]._id, 4)}>Ask authorisation</button>
-            }
-          }
-        }else{
-          if(data[i].bookstate_int === 4){
-            data[i].a2 = <button className="btn btn-success" onClick={ () =>updateStatusHandler(data[i]._id, 5)}>Approve</button>
-            data[i].a3 = <button className="btn btn-danger" onClick={ () => updateStatusHandler(data[i]._id, 6)}>Deny</button>
-          }
+        if(cookies.usertype === "admin"){
+        data[i].a1 = <button className="btn btn-danger rounded-pill" onClick={ () => deleteUser(data[i]._id)}>Delete this user</button>
         }
       }
-      console.log("Here modified data = "+ JSON.stringify(data));
-      return books.books;
+      return data;
     }else {
       alert("Server error. Try again after sometime")
     }
@@ -156,30 +164,103 @@ const getData = async (cookies) => {
   }
 }
 
-const Showtable = () => {
+const getBookHistoryData = async (id) => {
+  try {
+    const res = await fetch(`http://localhost:5000/bookhistory/${id}`, {
+      method: "GET"
+    })
+    console.log(res.status);
+    const data = (await res.json()).history;
+    console.log(data);
+    if (res && res.status === 200) {
+      return data;
+    }else {
+      alert("Server error. Try again after sometime")
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+const getBookData = async (cookies) => {
+  try {
+    const res = await fetch('http://localhost:5000/', {
+      method: "GET",
+      credentials: "include"
+    })
+    const data = (await res.json()).books;
+    if (res && res.status === 200) {
+      for (let i = 0; i < data.length; i++) {
+        data[i].a1 = <NavLink
+            to={"/bookhistory/" + data[i]._id} className="btn btn-primary rounded-pill">
+            History
+          </NavLink>
+        if(cookies.usertype === "user"){
+          if(data[i].bookstate_int === 0){
+            data[i].a2 = <button className="btn btn-danger rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 7)}>Delete book request</button>
+          }else if(data[i].bookstate_int === 0){
+            data[i].a2 = <button className="btn btn-danger rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 7)}>Delete book request</button>
+          }
+        }else if(cookies.usertype === "employee"){
+          if(data[i].bookstate_int === 0){
+            data[i].a2 = <button className="btn btn-danger rounded-pill" onClick={ () => updateBookHandledBy(data[i]._id)}>Assign to self</button>
+          }else{
+            if(data[i].handledby === cookies.username && data[i].bookstate_int === (1 || 3)){
+              data[i].a2 = <button className="btn btn-info rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 2)}>Ask more info</button>
+              data[i].a3 = <button className="btn btn-success rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 5)}>Approve</button>
+              data[i].a4 = <button className="btn btn-warning rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 4)}>Ask authorisation</button>
+            }
+          }
+        }else{
+          if(data[i].bookstate_int === 4){
+            data[i].a2 = <button className="btn btn-success" onClick={ () =>updateBookStatus(data[i]._id, 5)}>Approve</button>
+            data[i].a3 = <button className="btn btn-danger" onClick={ () => updateBookStatus(data[i]._id, 6)}>Deny</button>
+          }
+        }
+      }
+      return data;
+    }else {
+      alert("Server error. Try again after sometime")
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+const Showtable = (props) => {
   const [data, setData] = useState();
   const [cookies, setCookie] = useCookies();
   useEffect(() => {
-    getData(cookies).then((data) => setData(data));
+    if(cookies.usertype ==="admin" && props.pagetype === "users")
+      getUserData(cookies).then((data) => setData(data));
+    else if(props.pagetype === "home")
+      getBookData(cookies).then((data) => setData(data));
+    else if(props.pagetype === "bookhistory")
+      getBookHistoryData().then((data) => setData(data));
   }, []);
 
-  const columns = getColumns(cookies);
+  const columns = getColumns(props.pagetype);
   const tableData = {
     columns,
     data
   };
 
   return (
-    <div className="main">
-      <DataTableExtensions {...tableData}>
-        <DataTable
-          columns={columns}
-          data={data}
-          defaultSortField="name"
-          pagination
-          highlightOnHover
-        />
-      </DataTableExtensions>
+    <div className="container datatable">
+      <div className="row my-4">
+        <h3 className="text-center">{props.title}</h3>
+        <div className="main">
+          <DataTableExtensions {...tableData}>
+            <DataTable
+              columns={columns}
+              data={data}
+              defaultSortField="name"
+              pagination
+              highlightOnHover
+            />
+          </DataTableExtensions>
+        </div>
+      </div>
     </div>
   );
 };

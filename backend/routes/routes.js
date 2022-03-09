@@ -18,8 +18,10 @@ router.get("/bookhistory/:id", historyController.getBookHistory);
 
 // User routes
 router.post("/register", usersController.registerUser);
-router.post("/addemployee", usersController.registerUser);
 router.post("/login", usersController.login);
+router.get("/users", usersController.getAllUsers);
+router.delete("/users/:id", usersController.deleteUser);
+router.post("/addemployee", usersController.registerUser);
 // router.get("/auth", usersController.authenticate);
 // router.get("/logout", usersController.logout);
 

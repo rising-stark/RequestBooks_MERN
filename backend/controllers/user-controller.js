@@ -87,6 +87,35 @@ const registerUser = async (req, res, next) => {
   return res.status(200).send("Registered new user");
 };
 
+const getAllUsers = async (req, res, next) => {
+  let users;
+  usertype = req.cookies.usertype;
+  try {
+    if(usertype == "admin")
+      users = await User.find();
+  } catch (err) {
+    console.log(err);
+    return res.status(400).send("No book requests found");
+  }
+  // console.log(users)
+  return res.status(200).json({ "users": users });
+};
+
+const deleteUser = async (req, res, next) => {
+  if(req.cookies.usertype !== "admin"){
+    
+  }
+  const id = req.params.id;
+  let user;
+  try {
+    await User.findByIdAndRemove(id);
+  } catch (err) {
+    console.log(err);
+    return res.status(404).send("Unable To Delete this user");
+  }
+  return res.status(200).send("User Successfully Deleted");
+};
+
 const logout = async (req, res, next) => {
   res.clearCookie("jwt")
   return res.status(200).send("Logged out")
@@ -96,3 +125,5 @@ exports.authenticate = authenticate;
 exports.login = login;
 exports.registerUser = registerUser;
 exports.logout = logout;
+exports.getAllUsers = getAllUsers
+exports.deleteUser = deleteUser

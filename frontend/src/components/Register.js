@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useNavigate } from 'react-router';
+import $ from "jquery";
 
-const Register = () => {
+const Register = (props) => {
   const history = useNavigate()
   const [input, setInput] = useState({
     username : "",
@@ -19,13 +20,21 @@ const Register = () => {
 
   const handleSubmit = async (event)=>{
     event.preventDefault();
-    const {username, name, email, password} = input;
+    const {username, name, email, password, cnfpassword} = input;
+    console.log(password);
+    console.log(cnfpassword);
+    if(password != cnfpassword){
+      console.log(cnfpassword);
+      alert("Passwords do not match");
+      return false;
+    }
     try {
       const res = await fetch('http://localhost:5000/register', {
         method : "POST",
         headers : {
           "Content-Type" : "application/json"
         },
+        credentials: "include",
         body : JSON.stringify({username, name, email, password})
       })
       console.log(res.status)
@@ -45,16 +54,22 @@ const Register = () => {
 
   return (
     <div className="container shadow my-4 rounded">
-      <div className="row justify-content-end">
-        <div className="col-md-5 d-flex flex-column align-items-center text-white justify-content-center order-2 bg-info rounded">
-          <h1 className="display-4 fw-bolder">Hello, reader</h1>
-          <p className="lead text-center">Enter Your Details to Register</p>
-          <h5 className="mb-4">OR</h5>
-          <NavLink
-            to="/login" className="btn btn-outline-light rounded-pill pb-2 w-50">
-            Login
-          </NavLink>
-        </div>
+      <div className="row justify-content-center">
+        {
+          props.usertype !== "admin" ?
+            <div className="col-md-5 d-flex flex-column align-items-center text-white justify-content-center order-2 bg-info rounded">
+              <h1 className="display-4 fw-bolder">Hello, reader</h1>
+              <p className="lead text-center">Enter Your Details to Register</p>
+              <h5 className="mb-4">OR</h5>
+              <NavLink
+                to="/login" className="btn btn-outline-light rounded-pill pb-2 w-50">
+                Login
+              </NavLink>
+            </div>
+          :
+            <>
+            </>
+        }
         <div className="col-md-6 p-4 m-2">
           <h2 className="m-2 text-center">Register Yourself </h2>
           <form onSubmit={handleSubmit}>
@@ -80,10 +95,6 @@ const Register = () => {
             <div className="mb-3">
               <label htmlFor="password" className="form-label">Confirm Password</label>
               <input type="password" className="form-control" name="cnfpassword" value={input.cnfpassword} onChange={handleInput} aria-describedby="password" minLength="6" placeholder="Re-enter your password" required />
-            </div>
-            <div className="mb-3 form-check">
-              <input type="checkbox" className="form-check-input" required />
-              <label className="form-check-label" htmlFor="terms">I Agree to the Terms and Conditions</label>
             </div>
             <button type="submit" className="btn btn-outline-primary w-100 mt-4 rounded-pill">
             Register

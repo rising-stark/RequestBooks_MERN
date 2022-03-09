@@ -2,8 +2,6 @@ const Book = require("../model/Book");
 const BookHistory = require("../model/BookHistory");
 
 const insertBookHistory = async (username, book) =>{
-  console.log("I am called")
-
   try {
     bookhistory = new BookHistory({
       bookid: book._id,
@@ -21,8 +19,6 @@ const insertBookHistory = async (username, book) =>{
 const getAllBookRequests = async (req, res, next) => {
   let books;
   usertype = req.cookies.usertype;
-  // console.log("printing here\n\n");
-  // console.log(req.cookies);
   try {
     if(usertype == "user")
       books = await Book.find({requestedby: req.cookies.username});
@@ -62,14 +58,14 @@ const requestBook = async (req, res, next) => {
       handledby: "",
     });
     await book.save();
+    const bookhistory = await insertBookHistory(req.cookies.username, book)
+    if(bookhistory == 0)
+      return res.status(400).send("Unable to insert book history");
+    return res.status(200).json({ book });
   } catch (err) {
     console.log(err);
     return res.status(400).send("Unable to add a book request");
   }
-  const bookhistory = await insertBookHistory(req.cookies.username, book)
-  if(bookhistory == 0)
-    return res.status(400).send("Unable to insert book history");
-  return res.status(200).json({ book });
 };
 
 const updateBook = async (req, res, next) => {
@@ -85,37 +81,34 @@ const updateBook = async (req, res, next) => {
       bookstate_int: 3,
       bookstate: "Book info Updated from "+JSON.stringify(book) + " to " + JSON.stringify(req.body),
     });
-    book = await book.save();
+    const bookhistory = await insertBookHistory(req.cookies.username, book)
+    if(bookhistory == 0)
+      return res.status(400).send("Unable to insert book history");
+    return res.status(200).json({ book });
   } catch (err) {
     console.log(err);
     return res.status(400).send("Unable To Update By this ID");
   }
-  const bookhistory = await insertBookHistory(req.cookies.username, book)
-  if(bookhistory == 0)
-    return res.status(400).send("Unable to insert book history");
-  return res.status(200).json({ book });
 };
 
 const updateBookStatus = async (req, res, next) => {
   const id = req.params.id;
   const { bookstate, bookstate_int } = req.body;
-  console.log("Printing req.body here in updateBookStatus backend")
-  console.log(JSON.stringify(req.body))
   let book;
   try {
     book = await Book.findByIdAndUpdate(id, {
       bookstate,
       bookstate_int
-    });
+    }, {new: true});
     book = await book.save();
+    const bookhistory = await insertBookHistory(req.cookies.username, book)
+    if(bookhistory == 0)
+      return res.status(400).send("Unable to insert book history");
+    return res.status(200).send("Book status updated");
   } catch (err) {
     console.log(err);
     return res.status(400).send("Unable To Update book status by this ID");
   }
-  const bookhistory = await insertBookHistory(req.cookies.username, book)
-  if(bookhistory == 0)
-    return res.status(400).send("Unable to insert book history");
-  return res.status(200).send("Book status updated");;
 };
 
 const updateBookHandledBy = async (req, res, next) => {
@@ -126,16 +119,15 @@ const updateBookHandledBy = async (req, res, next) => {
       bookstate_int: 1,
       bookstate: "Book assigned to "+req.cookies.username,
       handledby: req.cookies.username
-    });
-    book = await book.save();
+    }, {new: true});
+    const bookhistory = await insertBookHistory(req.cookies.username, book)
+    if(bookhistory == 0)
+      return res.status(400).send("Unable to insert book history");
+    return res.status(200).send("Book assigned to "+req.cookies.username+" successfully.");
   } catch (err) {
     console.log(err);
-    return res.status(400).send("Unable To Update book status by this ID");
+    return res.status(400).send("Server error. Unable To update book");
   }
-  const bookhistory = await insertBookHistory(req.cookies.username, book)
-  if(bookhistory == 0)
-    return res.status(400).send("Unable to insert book history");
-  return res.status(200).send("Book status updated");;
 };
 
 exports.getAllBookRequests = getAllBookRequests;
