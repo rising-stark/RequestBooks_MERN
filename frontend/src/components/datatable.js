@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useParams } from 'react-router-dom';
 import DataTable from "react-data-table-component";
 import DataTableExtensions from "react-data-table-component-extensions";
 import "react-data-table-component-extensions/dist/index.css";
@@ -136,6 +136,24 @@ function getColumns(pagetype){
         selector: 'a1'
       },
     ];
+  }else{
+    columns = [
+      {
+        name: 'Action',
+        selector: 'bookstate',
+        sortable: true,
+      },
+      {
+        name: 'Action performed by',
+        selector: 'username',
+        sortable: true,
+      },
+      {
+        name: 'Action performed at',
+        selector: 'timestamp',
+        sortable: true,
+      },
+    ];
   }
   return columns;
 }
@@ -167,7 +185,8 @@ const getUserData = async (cookies) => {
 const getBookHistoryData = async (id) => {
   try {
     const res = await fetch(`http://localhost:5000/bookhistory/${id}`, {
-      method: "GET"
+      method: "GET",
+      credentials: "include"
     })
     console.log(res.status);
     const data = (await res.json()).history;
@@ -230,13 +249,15 @@ const getBookData = async (cookies) => {
 const Showtable = (props) => {
   const [data, setData] = useState();
   const [cookies, setCookie] = useCookies();
+  const id = useParams().id;
+
   useEffect(() => {
     if(cookies.usertype ==="admin" && props.pagetype === "users")
       getUserData(cookies).then((data) => setData(data));
     else if(props.pagetype === "home")
       getBookData(cookies).then((data) => setData(data));
     else if(props.pagetype === "bookhistory")
-      getBookHistoryData().then((data) => setData(data));
+      getBookHistoryData(id).then((data) => setData(data));
   }, []);
 
   const columns = getColumns(props.pagetype);
