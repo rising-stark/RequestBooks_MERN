@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
 import DataTable from "react-data-table-component";
 import { useCookies } from 'react-cookie';
@@ -23,42 +23,49 @@ function getColumns(cookies, pagetype, filterableColumns){
         selector: row => row.name,
         sortable: true,
         filter: true,
+        col: "name"
       },
       {
         name: 'Author name',
         selector: row => row.author,
         sortable: true,
         filter: true,
+        col: "author"
       },
       {
         name: 'Description',
         selector: row => row.description,
         sortable: true,
         filter: true,
+        col: "description"
       },
       {
         name: 'Price',
         selector: row => row.price,
         sortable: true,
         filter: true,
+        col: "price"
       },
       {
         name: 'Requested time',
         selector: row => row.requestedat,
         sortable: true,
         filter: true,
+        col: "requestedat"
       },
       {
         name: 'Employee Handling',
         selector: row => row.handledby,
         sortable: true,
         filter: true,
+        col: "handledby"
       },
       {
         name: 'Book state',
         selector: row => row.bookstate,
         sortable: true,
         filter: true,
+        col: "bookstate"
       },
     ];
     if(cookies.usertype !== "user"){
@@ -67,6 +74,7 @@ function getColumns(cookies, pagetype, filterableColumns){
         selector: row => row.requestedby,
         sortable: true,
         filter: true,
+        col: "requestedby"
       })
     }
     columns.push({
@@ -79,18 +87,21 @@ function getColumns(cookies, pagetype, filterableColumns){
         selector: row => row.name,
         sortable: true,
         filter: true,
+        col: "name"
       },
       {
         name: 'Email',
         selector: row => row.email,
         sortable: true,
         filter: true,
+        col: "email"
       },
       {
         name: 'User Type',
         selector: row => row.usertype,
         sortable: true,
         filter: true,
+        col: "usertype"
       },
       {
         selector: row => row.a,
@@ -103,24 +114,27 @@ function getColumns(cookies, pagetype, filterableColumns){
         selector: row => row.bookstate,
         sortable: true,
         filter: true,
+        col: "bookstate"
       },
       {
         name: 'Action performed by',
         selector: row => row.username,
         sortable: true,
         filter: true,
+        col: "username"
       },
       {
         name: 'Action performed at',
         selector: row => row.timestamp,
         sortable: true,
         filter: true,
+        col: "timestamp"
       },
     ];
   }
   for(let i = 0; i < columns.length; i++){
     if(columns[i].filter)
-      filterableColumns.push(columns[i].selector);
+      filterableColumns.push(columns[i].col);
   }
   return columns;
 }
@@ -280,29 +294,30 @@ const Showtable = (props) => {
       getBookData(cookies, columns).then((data) => setData(data));
     else if(props.pagetype === "bookhistory")
       getBookHistoryData(id).then((data) => setData(data));
-  }, [id]);
+  }, [id, props, cookies]);
 
   useEffect(() => {
     setFilteredData(data);
   }, [data]);
 
   useEffect(() => {
+    let f = filterText.toLowerCase();
     const filteredItems = data.filter(
       item => {
         let result = false;
-        let f = filterText.toLowerCase();
-        for(let i=0; i < filterableColumns.length; i++)
+          console.log("printing in loop")
+          console.log(filterableColumns)
+        for(let i=0; i < filterableColumns.length; i++){
+          // console.log(item)
+          // console.log(filterableColumns[i])
           result = result || (item[filterableColumns[i]]+"").toLowerCase().includes(f);
+        }
         return result;
       }
+      // item => item.name.toLowerCase().includes(f)
     );
     setFilteredData(filteredItems);
   }, [filterText]);
-
-  const tableData = {
-    columns,
-    data
-  };
 
   return (
     <div className="container datatable">

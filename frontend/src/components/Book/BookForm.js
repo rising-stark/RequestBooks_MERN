@@ -55,17 +55,13 @@ const BookForm = (props) => {
   }
 
   useEffect(() => {
-    console.log("JSON.stringify(props)")
-    console.log(JSON.stringify(props))
-    console.log("id")
-    console.log(id)
-    if(id !== undefined && props.pagetype == "edit" || props.pagetype == "show")
+    if(id !== undefined && (props.pagetype === "edit" || props.pagetype === "show"))
       getBookById().then((data) => {
         setInput(data);
         setHeading(heading_dict[props.pagetype]);
         setbtn(btn_dict[props.pagetype]);
       });
-  }, [id]);
+  }, [id, props]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -122,7 +118,7 @@ const BookForm = (props) => {
               <input type="number" className="form-control" name="price" value={input.price} onChange={handleInput} min="0" max="1000" aria-describedby="price" placeholder="Enter book price" required />
             </div>
             {
-              (props.pagetype == "new" || props.pagetype == "edit")?
+              (props.pagetype === "new" || props.pagetype === "edit")?
                 <button type="submit" className="btn btn-primary col-4 offset-4">
                   {btn}
                 </button>

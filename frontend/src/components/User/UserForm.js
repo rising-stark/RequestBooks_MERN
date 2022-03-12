@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useNavigate } from 'react-router';
-import $ from "jquery";
 
 const UserForm = (props) => {
   const history = useNavigate()
@@ -22,7 +21,7 @@ const UserForm = (props) => {
   const handleSubmit = async (event)=>{
     event.preventDefault();
     const {username, name, email, password, cnfpassword} = input;
-    if(password != cnfpassword){
+    if(password !== cnfpassword){
       alert("Passwords do not match");
       return false;
     }
@@ -35,8 +34,6 @@ const UserForm = (props) => {
         credentials: "include",
         body : JSON.stringify({username, name, email, password})
       })
-      console.log(res.status)
-      console.log(res);
       if(res && res.status === 200){
         alert("User registered Successfully");
         history('/login')
