@@ -1,8 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
 import DataTable from "react-data-table-component";
-import DataTableExtensions from "react-data-table-component-extensions";
-import "react-data-table-component-extensions/dist/index.css";
 import { useCookies } from 'react-cookie';
 
 const book_state_dict = {
@@ -14,6 +12,117 @@ const book_state_dict = {
   5: "Book request approved",
   6: "Book request denied",
   7: "Book request deleted",
+}
+
+function getColumns(cookies, pagetype, filterableColumns){
+  let columns = [];
+  if(pagetype === "home"){
+    columns = [
+      {
+        name: 'Book name',
+        selector: row => row.name,
+        sortable: true,
+        filter: true,
+      },
+      {
+        name: 'Author name',
+        selector: row => row.author,
+        sortable: true,
+        filter: true,
+      },
+      {
+        name: 'Description',
+        selector: row => row.description,
+        sortable: true,
+        filter: true,
+      },
+      {
+        name: 'Price',
+        selector: row => row.price,
+        sortable: true,
+        filter: true,
+      },
+      {
+        name: 'Requested time',
+        selector: row => row.requestedat,
+        sortable: true,
+        filter: true,
+      },
+      {
+        name: 'Employee Handling',
+        selector: row => row.handledby,
+        sortable: true,
+        filter: true,
+      },
+      {
+        name: 'Book state',
+        selector: row => row.bookstate,
+        sortable: true,
+        filter: true,
+      },
+    ];
+    if(cookies.usertype !== "user"){
+      columns.push({
+        name: 'Requested By',
+        selector: row => row.requestedby,
+        sortable: true,
+        filter: true,
+      })
+    }
+    columns.push({
+      selector: row => row.a,
+    });
+  }else if(pagetype === "users"){
+    columns = [
+      {
+        name: 'Name',
+        selector: row => row.name,
+        sortable: true,
+        filter: true,
+      },
+      {
+        name: 'Email',
+        selector: row => row.email,
+        sortable: true,
+        filter: true,
+      },
+      {
+        name: 'User Type',
+        selector: row => row.usertype,
+        sortable: true,
+        filter: true,
+      },
+      {
+        selector: row => row.a,
+      },
+    ];
+  }else{
+    columns = [
+      {
+        name: 'Action',
+        selector: row => row.bookstate,
+        sortable: true,
+        filter: true,
+      },
+      {
+        name: 'Action performed by',
+        selector: row => row.username,
+        sortable: true,
+        filter: true,
+      },
+      {
+        name: 'Action performed at',
+        selector: row => row.timestamp,
+        sortable: true,
+        filter: true,
+      },
+    ];
+  }
+  for(let i = 0; i < columns.length; i++){
+    if(columns[i].filter)
+      filterableColumns.push(columns[i].selector);
+  }
+  return columns;
 }
 
 const updateBookHandledBy = async (id) => {
@@ -62,118 +171,13 @@ const deleteUser = async (id) => {
   }
 };
 
-function getColumns(cookies, pagetype){
-  let columns = [];
-  if(pagetype === "home"){
-    columns = [
-      {
-        name: 'Book name',
-        selector: 'name',
-        sortable: true,
-      },
-      {
-        name: 'Author name',
-        selector: 'author',
-        sortable: true,
-      },
-      {
-        name: 'Description',
-        selector: 'description',
-        sortable: true,
-      },
-      {
-        name: 'Price',
-        selector: 'price',
-        sortable: true,
-      },
-      {
-        name: 'Requested time',
-        selector: 'requestedat',
-        sortable: true,
-      },
-      {
-        name: 'Employee Handling',
-        selector: 'handledby',
-        sortable: true,
-      },
-      {
-        name: 'Book state',
-        selector: 'bookstate',
-        sortable: true,
-      },
-    ];
-    if(cookies.usertype !== "users"){
-      columns.push({
-        name: 'Requested By',
-        selector: 'requestedby',
-        sortable: true,
-      })
-    }
-    columns.push({
-      name: '',
-      selector: 'a1'
-    },
-    {
-      name: '',
-      selector: 'a2'
-    },
-    {
-      name: '',
-      selector: 'a3'
-    });
-  }else if(pagetype === "users"){
-    columns = [
-      {
-        name: 'Name',
-        selector: 'name',
-        sortable: true,
-      },
-      {
-        name: 'Email',
-        selector: 'email',
-        sortable: true,
-      },
-      {
-        name: 'User Type',
-        selector: 'usertype',
-        sortable: true,
-      },
-      {
-        name: '',
-        selector: 'a1',
-      },
-    ];
-  }else{
-    columns = [
-      {
-        name: 'Action',
-        selector: 'bookstate',
-        sortable: true,
-      },
-      {
-        name: 'Action performed by',
-        selector: 'username',
-        sortable: true,
-      },
-      {
-        name: 'Action performed at',
-        selector: 'timestamp',
-        sortable: true,
-      },
-    ];
-  }
-  return columns;
-}
-
 const getUserData = async (cookies) => {
   try {
     const res = await fetch('http://localhost:5000/users', {
       method: "GET",
       credentials: "include"
     })
-    console.log(res.status);
     const data = (await res.json()).users;
-    console.log(data);
     if (res && res.status === 200) {
       for (let i = 0; i < data.length; i++) {
         if(cookies.usertype === "admin"){
@@ -195,9 +199,7 @@ const getBookHistoryData = async (id) => {
       method: "GET",
       credentials: "include"
     })
-    console.log(res.status);
     const data = (await res.json()).history;
-    console.log(data);
     if (res && res.status === 200) {
       return data;
     }else {
@@ -217,47 +219,39 @@ const getBookData = async (cookies, columns) => {
     const data = (await res.json()).books;
     if (res && res.status === 200) {
       for (let i = 0; i < data.length; i++) {
-        data[i].a1 = <NavLink
+        data[i].a = [<NavLink
             to={"/bookhistory/" + data[i]._id} className="btn btn-primary rounded-pill">
             Show book history
-          </NavLink>
+          </NavLink>]
         if(cookies.usertype === "user"){
-          data[i].a2 = <NavLink
+          data[i].a.push(<NavLink
               to={"/books/" + data[i]._id} className="btn btn-info rounded-pill">
               Show book details
-            </NavLink>
+            </NavLink>)
           if(data[i].bookstate_int === 0){
-            data[i].a3 = <button className="btn btn-danger rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 7)}>Delete book request</button>
+            data[i].a.push(<button className="btn btn-danger rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 7)}>Delete book request</button>)
           }else if(data[i].bookstate_int === 2){
-            data[i].a3 = <NavLink
+            data[i].a.push(<NavLink
               to={"/books/" + data[i]._id + "/edit"} className="btn btn-warning rounded-pill">
               Update book details
-            </NavLink>
+            </NavLink>)
           }
         }else if(cookies.usertype === "employee"){
           if(data[i].bookstate_int === 0){
-            data[i].a2 = <button className="btn btn-danger rounded-pill" onClick={ () => updateBookHandledBy(data[i]._id)}>Assign to self</button>
+            data[i].a.push(<button className="btn btn-danger rounded-pill" onClick={ () => updateBookHandledBy(data[i]._id)}>Assign to self</button>)
           }else{
-            console.log("employee usertype inside")
-            console.log(data[i].handledby)
-            console.log(cookies.username)
-            console.log(data[i].handledby === cookies.username)
-
-            console.log(data[i].bookstate_int)
             if(data[i].handledby === cookies.username && (data[i].bookstate_int === 1 || data[i].bookstate_int === 3)){
-              data[i].a2 = <button className="btn btn-info rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 2)}>Ask more info</button>
-              data[i].a3 = <button className="btn btn-success rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 5)}>Purchase book</button>
-              console.log("Printing columns here");
-              console.log(columns);
-              columns.push({name: '',selector: 'a4'});
-              console.log(columns);
-              data[i].a4 = <button className="btn btn-warning rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 4)}>Ask authorisation</button>
+              data[i].a.push(
+                <button className="btn btn-info rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 2)}>Ask more info</button>,
+                <button className="btn btn-success rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 5)}>Purchase book</button>,
+                <button className="btn btn-warning rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 4)}>Ask authorisation</button>
+              )
             }
           }
         }else{
           if(data[i].bookstate_int === 4){
-            data[i].a2 = <button className="btn btn-success" onClick={ () =>updateBookStatus(data[i]._id, 5)}>Approve purchase</button>
-            data[i].a3 = <button className="btn btn-danger" onClick={ () => updateBookStatus(data[i]._id, 6)}>Deny purchase</button>
+            data[i].a.push(<button className="btn btn-success" onClick={ () =>updateBookStatus(data[i]._id, 5)}>Approve purchase</button>)
+            data[i].a.push(<button className="btn btn-danger" onClick={ () => updateBookStatus(data[i]._id, 6)}>Deny purchase</button>)
           }
         }
       }
@@ -271,10 +265,13 @@ const getBookData = async (cookies, columns) => {
 }
 
 const Showtable = (props) => {
-  const [data, setData] = useState();
+  let filterableColumns = [];
+  const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState(data);
   const [cookies, setCookie] = useCookies();
+  const [filterText, setFilterText] = useState('');
   const id = useParams().id;
-  const columns = getColumns(cookies, props.pagetype);
+  const columns = getColumns(cookies, props.pagetype, filterableColumns);
 
   useEffect(() => {
     if(cookies.usertype ==="admin" && props.pagetype === "users")
@@ -284,6 +281,23 @@ const Showtable = (props) => {
     else if(props.pagetype === "bookhistory")
       getBookHistoryData(id).then((data) => setData(data));
   }, [id]);
+
+  useEffect(() => {
+    setFilteredData(data);
+  }, [data]);
+
+  useEffect(() => {
+    const filteredItems = data.filter(
+      item => {
+        let result = false;
+        let f = filterText.toLowerCase();
+        for(let i=0; i < filterableColumns.length; i++)
+          result = result || (item[filterableColumns[i]]+"").toLowerCase().includes(f);
+        return result;
+      }
+    );
+    setFilteredData(filteredItems);
+  }, [filterText]);
 
   const tableData = {
     columns,
@@ -295,15 +309,19 @@ const Showtable = (props) => {
       <div className="row my-4">
         <h3 className="text-center">{props.title}</h3>
         <div className="main">
-          <DataTableExtensions {...tableData}>
+          <div className="row g-3 align-items-center my-3">
+            <div className="col-auto">
+              <label htmlFor="search" className="form-label">Search:</label>
+            </div>
+            <div className="col-auto">
+              <input type="text" className="mx-3 form-control" value={filterText} onChange={e => setFilterText(e.target.value)} aria-describedby="Search Input" placeholder="Enter search text" />
+            </div>
+          </div>
             <DataTable
               columns={columns}
-              data={data} noHeader
+              data={filteredData}
               pagination
-              highlightOnHover
-              filter
             />
-          </DataTableExtensions>
         </div>
       </div>
     </div>
