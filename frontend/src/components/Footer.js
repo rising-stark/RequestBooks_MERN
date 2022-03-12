@@ -1,4 +1,3 @@
-import React from "react";
 import { NavLink } from "react-router-dom";
 
 const Footer = () => {
@@ -12,7 +11,7 @@ const Footer = () => {
           <div className="col-3">
             <ul className="nav flex-column">
               <li className="nav-item mb-2">
-                <NavLink to="/" className="nav-link p-0 text-white">
+                <NavLink to="/books" className="nav-link p-0 text-white">
                   Home
                 </NavLink>
               </li>

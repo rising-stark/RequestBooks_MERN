@@ -4,26 +4,26 @@ const booksController = require("../controllers/book-controller");
 const usersController = require("../controllers/user-controller");
 const historyController = require("../controllers/history-controller");
 
+// Auth routes
+router.post("/register", usersController.registerUser);
+router.post("/login", usersController.login);
+router.get("/auth", usersController.authenticate);
+// router.get("/logout", usersController.logout);
+
 // Book routes
-router.get("/", booksController.getAllBookRequests);
-router.post("/", booksController.requestBook);
-router.put("/update/:id", booksController.updateBook);
-// router.get("/:id", booksController.getById);
-router.put("/updatestatus/:id", booksController.updateBookStatus);
-router.put("/updatehandledby/:id", booksController.updateBookHandledBy);
-// router.delete("/:id", booksController.deleteBook);
+router.get("/books", booksController.getAllBookRequests);
+router.post("/books/new", booksController.requestBook);
+router.get("/books/:id", booksController.getBookById);
+router.put("/books/:id/update", booksController.updateBook);
+router.put("/books/:id/updatestatus", booksController.updateBookStatus);
+router.put("/books/:id/updatehandledby", booksController.updateBookHandledBy);
 
 // BookHistory routes
 router.get("/bookhistory/:id", historyController.getBookHistory);
 
 // User routes
-router.post("/register", usersController.registerUser);
-router.post("/login", usersController.login);
 router.get("/users", usersController.getAllUsers);
 router.delete("/users/:id", usersController.deleteUser);
-router.post("/addemployee", usersController.registerUser);
-// router.get("/auth", usersController.authenticate);
-// router.get("/logout", usersController.logout);
-
+router.post("/users/new", usersController.registerUser);
 
 module.exports = router;

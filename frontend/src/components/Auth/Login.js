@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useNavigate } from "react-router";
 import { useCookies } from 'react-cookie';
@@ -36,7 +36,7 @@ const Login = () => {
         setCookie('usertype', data.usertype);
         setCookie('username', data.username);
         alert("LoggedIn Successfully");
-        history('/')
+        history('/books')
       } else if (res && res.status === 400) {
         alert("Invalid crednetials");
       } else {

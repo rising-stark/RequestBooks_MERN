@@ -1,4 +1,3 @@
-import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
 const PrivateRoute = (props) => {
@@ -7,4 +6,4 @@ const PrivateRoute = (props) => {
   return props.auth ? <Outlet /> : <Navigate to={props.redirectpath} />;
 }
 
-export default PrivateRoute
+export default PrivateRoute;

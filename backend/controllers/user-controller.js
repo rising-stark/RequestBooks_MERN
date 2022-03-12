@@ -95,15 +95,15 @@ const getAllUsers = async (req, res, next) => {
       users = await User.find();
   } catch (err) {
     console.log(err);
-    return res.status(400).send("No book requests found");
+    return res.status(400).send("No users found");
   }
   // console.log(users)
-  return res.status(200).json({ "users": users });
+  return res.status(200).json({ users });
 };
 
 const deleteUser = async (req, res, next) => {
   if(req.cookies.usertype !== "admin"){
-    
+    return res.status(400).send("No users found");
   }
   const id = req.params.id;
   let user;

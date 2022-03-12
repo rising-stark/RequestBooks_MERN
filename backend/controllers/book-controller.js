@@ -29,17 +29,19 @@ const getAllBookRequests = async (req, res, next) => {
     return res.status(400).send("No book requests found");
   }
   // console.log(books)
-  return res.status(200).json({ "books": books });
+  return res.status(200).json({ books });
 };
 
-const getById = async (req, res, next) => {
+const getBookById = async (req, res, next) => {
   const id = req.params.id;
   let book;
   try {
     book = await Book.findById(id);
+    if(req.cookies.usertype !== "user" || book.requestedby !== req.cookies.username)
+      return res.status(200).json({ book });
   } catch (err) {
     console.log(err);
-    return res.status(400).send("No book by this id found");
+    return res.status(200).json({ book });
   }
   return res.status(200).json({ book });
 };
@@ -79,15 +81,15 @@ const updateBook = async (req, res, next) => {
       description,
       price,
       bookstate_int: 3,
-      bookstate: "Book info Updated from "+JSON.stringify(book) + " to " + JSON.stringify(req.body),
-    });
+      bookstate: "Updated book info from "+JSON.stringify(book) + " to " + JSON.stringify(req.body),
+    }, {new: true});
     const bookhistory = await insertBookHistory(req.cookies.username, book)
     if(bookhistory == 0)
       return res.status(400).send("Unable to insert book history");
-    return res.status(200).json({ book });
+    return res.status(200).json({ book, message: "Book successfully updated" });
   } catch (err) {
     console.log(err);
-    return res.status(400).send("Unable To Update By this ID");
+    return res.status(400).json({ message: "Unable to find the book by this id" });
   }
 };
 
@@ -132,7 +134,7 @@ const updateBookHandledBy = async (req, res, next) => {
 
 exports.getAllBookRequests = getAllBookRequests;
 exports.requestBook = requestBook;
-exports.getById = getById;
+exports.getBookById = getBookById;
 exports.updateBook = updateBook;
 exports.updateBookHandledBy = updateBookHandledBy
 exports.updateBookStatus = updateBookStatus

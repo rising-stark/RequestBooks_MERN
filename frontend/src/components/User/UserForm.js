@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useNavigate } from 'react-router';
 import $ from "jquery";
 
-const Register = (props) => {
+const UserForm = (props) => {
   const history = useNavigate()
   const [input, setInput] = useState({
     username : "",
     email : "",
     name : "",
-    password : ""
+    password : "",
+    cnfpassword : ""
   });
   const handleInput = (e) => {
     setInput((prevState) => ({
@@ -21,15 +22,12 @@ const Register = (props) => {
   const handleSubmit = async (event)=>{
     event.preventDefault();
     const {username, name, email, password, cnfpassword} = input;
-    console.log(password);
-    console.log(cnfpassword);
     if(password != cnfpassword){
-      console.log(cnfpassword);
       alert("Passwords do not match");
       return false;
     }
     try {
-      const res = await fetch('http://localhost:5000/register', {
+      const res = await fetch('http://localhost:5000/users/new', {
         method : "POST",
         headers : {
           "Content-Type" : "application/json"
@@ -71,7 +69,12 @@ const Register = (props) => {
             </>
         }
         <div className="col-md-6 p-4 m-2">
-          <h2 className="m-2 text-center">Register Yourself </h2>
+          {
+            props.usertype === "admin" ?
+              <h2 className="m-2 text-center">Register New employee</h2>
+            :
+              <h2 className="m-2 text-center">Register Yourself</h2>
+          }
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label htmlFor="name" className="form-label">Full Name</label>
@@ -106,4 +109,4 @@ const Register = (props) => {
   );
 }
 
-export default Register;
+export default UserForm;

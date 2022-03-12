@@ -4,7 +4,7 @@ const Header = (props) => {
   return (
     <nav className="navbar navbar-expand-lg navbar-light shadow">
       <div className="container-fluid">
-        <NavLink className="navbar-brand d-md-none fw-bolder fs-2 mx-auto" to="/">RBO</NavLink>
+        <NavLink className="navbar-brand d-md-none fw-bolder fs-2 mx-auto" to="/books">RBO</NavLink>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span className="navbar-toggler-icon"></span>
         </button>
@@ -15,21 +15,21 @@ const Header = (props) => {
                 props.auth?
                   <>
                     <li className="nav-item">
-                      <NavLink className="nav-link" to="/">Home</NavLink>
+                      <NavLink exact="true" className="nav-link" to="/books">Home</NavLink>
                     </li>
                     {
                       props.usertype === "user" ?
                         <li className="nav-item">
-                          <NavLink className="nav-link" to="/requestbook">Request a book</NavLink>
+                          <NavLink exact="true" className="nav-link" to="/books/new">Request a book</NavLink>
                         </li>
                       :
                         props.usertype === "admin" ?
                           <>
                             <li className="nav-item">
-                              <NavLink className="nav-link" to="/addemployee">Register new employee</NavLink>
+                              <NavLink className="nav-link" to="/users">Show all users</NavLink>
                             </li>
                             <li className="nav-item">
-                              <NavLink className="nav-link" to="/users">Show all users</NavLink>
+                              <NavLink className="nav-link" to="/users/new">Register new employee</NavLink>
                             </li>
                           </>
                         :
@@ -47,7 +47,7 @@ const Header = (props) => {
             </ul>
           </div>
           <div className="col-4 text-center d-none d-lg-block">
-            <NavLink className="navbar-brand fw-bolder fs-1 mx-auto" to="/">RBO</NavLink>
+            <NavLink className="navbar-brand fw-bolder fs-1 mx-auto" to="/books">RBO</NavLink>
           </div>
           <div className="col-4 d-flex px-4 justify-content-end">
             {

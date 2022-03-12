@@ -11,14 +11,12 @@ const corsOptions = {
   credentials: true,
   exposedHeaders: ["set-cookie"],
   origin: (origin, callback) => {
-    console.log(origin)
     if(whitelist.includes(origin))
       return callback(null, true)
       callback(new Error('Not allowed by CORS'));
   }
 }
-app.use(cors());
-// app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({extended : false}));
