@@ -1,5 +1,5 @@
-import React from "react";
-import { Routes, Route } from 'react-router-dom';
+import React, {useEffect} from "react";
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 
 // Auth Components
@@ -22,9 +22,28 @@ import Chat from './components/Chat/Chat';
 import NotFound from './components/NotFound';
 
 function App() {
+  const navigate = useNavigate();
   const [cookies] = useCookies();
-  console.log("Printing cookies in react App.js")
-  console.log(cookies)
+  const isLoggedIn = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/auth', {
+        method : "GET",
+        credentials : "include"
+      });
+      if(res.status === 401){
+        navigate("/logout");
+      }
+      console.log("Printing cookies in react App.js")
+      console.log(cookies)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    isLoggedIn();
+  }, []);
+
   return (
     <React.Fragment>
       <Header auth={cookies.username != null} usertype={cookies.usertype} />

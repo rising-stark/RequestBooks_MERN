@@ -9,7 +9,7 @@ const chatController = require("../controllers/chat-controller");
 router.post("/register", usersController.registerUser);
 router.post("/login", usersController.login);
 router.get("/auth", usersController.authenticate);
-// router.get("/logout", usersController.logout);
+router.get("/logout", usersController.logout);
 
 // Book routes
 router.get("/books", booksController.getAllBookRequests);

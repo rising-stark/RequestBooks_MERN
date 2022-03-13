@@ -4,12 +4,11 @@ const nodemailer = require('nodemailer');
 
 const insertBookHistory = async (username, book) =>{
   try {
-    bookhistory = new BookHistory({
+    bookhistory = await BookHistory.create({
       bookid: book._id,
       username: username,
       bookstate: book.bookstate
     });
-    await bookhistory.save();
     return 1;
   } catch (err) {
     console.log(err);
@@ -76,11 +75,11 @@ const getBookById = async (req, res, next) => {
     book = await Book.findById(id);
     if(req.cookies.usertype === "user" && book.requestedby !== req.cookies.username)
       return res.status(400).json({});
+    return res.status(200).json({ book });
   } catch (err) {
     console.log(err);
     return res.status(400).json({});
   }
-  return res.status(200).json({ book });
 };
 
 const requestBook = async (req, res, next) => {
@@ -141,6 +140,8 @@ const updateBookStatus = async (req, res, next) => {
     const bookhistory = await insertBookHistory(req.cookies.username, book)
     if(bookhistory == 0)
       return res.status(400).send("Unable to insert book history");
+
+    // notify user using email if the book request is either aproved or denied
     if(bookstate_int === 5 || bookstate_int === 6)
       sendEmail(id, bookstate);
     return res.status(200).send("Book status updated");

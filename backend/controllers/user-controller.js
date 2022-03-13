@@ -6,23 +6,18 @@ const User = require("../models/User");
 const authenticate = async (req, res, next)=>{
   try {
     // Get the Cookies
-    console.log("reached");
-    console.log(req.cookies);
-    console.log("Printing the jwt = "+req.cookies.jwt);
     const token = req.cookies.jwt;
     if(!token){
       res.status(401).send("No token")
     }else{
       const verifyToken = jwt.verify(token, process.env.SECRET_KEY);
       const rootUser = await User.findOne({_id : verifyToken._id, "tokens.token" : token});
-
       if(!rootUser){
         res.status(401).send("User Not Found")
       }else{
         res.status(200).send("Authorized User")
       }
     }
-    next()
   } catch (error) {
     res.status(401).send("Error")
     console.log(error)
