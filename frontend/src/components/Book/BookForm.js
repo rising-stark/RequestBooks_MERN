@@ -13,60 +13,56 @@ const btn_dict = {
 }
 
 const BookForm = (props) => {
-  const history = useNavigate();
+  const pagetype = props.pagetype;
+  const navigate = useNavigate();
   const id = useParams().id;
-  const bookInitialState = {
+  const [heading, setHeading] = useState(heading_dict[pagetype]);
+  const [input, setInput] = useState({
     name: "",
     description: "",
     price: "",
     author: "",
-  };
-  const [heading, setHeading] = useState(heading_dict[props.pagetype]);
-  const [input, setInput] = useState(bookInitialState);
-  const [btn, setbtn] = useState(btn_dict[props.pagetype]);
+  });
+  const [btn, setbtn] = useState(btn_dict[pagetype]);
   const handleInput = (e) => {
-    setInput((prevState) => ({
-      ...prevState,
-      [e.target.name]: e.target.value,
-    }));
+    setInput((prevState) => ({ ...prevState, [e.target.name]: e.target.value,}));
   };
 
   const getBookById = async () => {
-    console.log("Printing the show/update book page");
-    console.log(JSON.stringify(props));
-    console.log(id);
     try {
       const res = await fetch(`http://localhost:5000/books/${id}`, {
         method: "GET",
         credentials: "include"
       });
       console.log(res.status);
+      let book;
       if (res && res.status === 200) {
-        const book = (await res.json()).book;
-        if(book === undefined)
-          alert("Book not found");
-        return book || bookInitialState;
-      }else {
-        alert("Server error. Try again later")
+        book = (await res.json()).book;
+        return book;
       }
+      if(book === undefined)
+        navigate("/books");
     } catch (error) {
       console.log(error);
+      alert("Server error. Try again later")
     }
   }
 
   useEffect(() => {
-    if(id !== undefined && (props.pagetype === "edit" || props.pagetype === "show"))
+    if(id !== undefined && (pagetype === "edit" || pagetype === "show"))
       getBookById().then((data) => {
+        if(data.bookstate_int !== 2 && pagetype === "edit")
+          navigate("/books/" + id);
         setInput(data);
         setHeading(heading_dict[props.pagetype]);
         setbtn(btn_dict[props.pagetype]);
       });
-  }, [id, props]);
+  }, [id, pagetype]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const {name, author, description, price} = input;
     try {
+      e.preventDefault();
+      const {name, author, description, price} = input;
       let URL = "http://localhost:5000/books/new", method = "POST", msg = "requested";
       if(id !== undefined && props.pagetype === "update"){
         URL = `http://localhost:5000/books/${id}/update`;
@@ -84,7 +80,7 @@ const BookForm = (props) => {
       console.log(res.status)
       if(res && res.status === 200){
         alert("Book "+msg+" Successfully");
-        history('/books')
+        navigate('/books')
       }else{
         alert("Server error. Try again after sometime")
       }

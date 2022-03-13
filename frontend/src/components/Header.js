@@ -53,12 +53,12 @@ const Header = (props) => {
             {
               props.auth ?
               <>
-                <NavLink to="/logout" className="btn btn-outline-primary ms-2 px-4 rounded-pill">Logout</NavLink>
+                <NavLink to="/logout" className="btn btn-outline-primary ms-2 px-4 rounded-pill"><span>Logout <i className="fa fa-sign-out" aria-hidden="true"></i></span></NavLink>
               </>
               :
               <>
-                <NavLink to="/login" className="btn btn-outline-primary ms-auto px-4 rounded-pill">Login</NavLink>
-                <NavLink to="/register" className="btn btn-outline-primary ms-2 px-4 rounded-pill">Register</NavLink>
+                <NavLink to="/login" className="btn btn-outline-primary ms-auto px-4 rounded-pill"><span>Login <i className="fa fa-sign-in" aria-hidden="true"></i></span></NavLink>
+                <NavLink to="/register" className="btn btn-outline-primary ms-2 px-4 rounded-pill"><span>Register <i className="fa fa-user-plus" aria-hidden="true"></i></span></NavLink>
               </>
             }
           </div>

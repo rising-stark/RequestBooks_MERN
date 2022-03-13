@@ -77,9 +77,18 @@ function getColumns(cookies, pagetype, filterableColumns){
         col: "requestedby"
       })
     }
-    columns.push({
-      selector: row => row.a,
-    });
+    if(cookies.usertype !== "admin"){
+      columns.push({
+        name: "Chat",
+        selector: row => row.chat,
+      })
+    }
+    columns.push(
+      {
+        name: "Actions",
+        selector: row => row.a,
+      }
+    );
   }else if(pagetype === "users"){
     columns = [
       {
@@ -233,39 +242,48 @@ const getBookData = async (cookies, columns) => {
     const data = (await res.json()).books;
     if (res && res.status === 200) {
       for (let i = 0; i < data.length; i++) {
-        data[i].a = [<NavLink
+        // U can chat only if the book is assigned to somebody and it is not deleted.
+        if([1, 2, 3, 4, 5].includes(data[i].bookstate_int) && (cookies.usertype === "user" || (cookies.usertype === "employee" && data[i].handledby === cookies.username)))
+          data[i].chat = <NavLink
+            to={"/chats/" + data[i]._id} className="btn btn-primary rounded-pill">
+            <span>Chat <i className="fa fa-commenting-o" aria-hidden="true"></i></span>
+          </NavLink>
+        data[i].a = [
+          <NavLink
             to={"/bookhistory/" + data[i]._id} className="btn btn-primary rounded-pill">
-            Show book history
-          </NavLink>]
+            <span>Book history <i className="fa fa-history" aria-hidden="true"></i></span>
+          </NavLink>,
+          <NavLink
+            to={"/books/" + data[i]._id} className="btn btn-info rounded-pill">
+            <span>Book details <i className="fa fa-info-circle" aria-hidden="true"></i></span>
+          </NavLink>
+        ]
         if(cookies.usertype === "user"){
-          data[i].a.push(<NavLink
-              to={"/books/" + data[i]._id} className="btn btn-info rounded-pill">
-              Show book details
-            </NavLink>)
+          data[i].a.push()
           if(data[i].bookstate_int === 0){
-            data[i].a.push(<button className="btn btn-danger rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 7)}>Delete book request</button>)
+            data[i].a.push(<button className="btn btn-danger rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 7)}><span>Delete request <i className="fa fa-trash" aria-hidden="true"></i></span></button>)
           }else if(data[i].bookstate_int === 2){
             data[i].a.push(<NavLink
               to={"/books/" + data[i]._id + "/edit"} className="btn btn-warning rounded-pill">
-              Update book details
+              <span>Update book details <i className="fa fa-edit" aria-hidden="true"></i></span>
             </NavLink>)
           }
         }else if(cookies.usertype === "employee"){
           if(data[i].bookstate_int === 0){
-            data[i].a.push(<button className="btn btn-danger rounded-pill" onClick={ () => updateBookHandledBy(data[i]._id)}>Assign to self</button>)
+            data[i].a.push(<button className="btn btn-danger rounded-pill" onClick={ () => updateBookHandledBy(data[i]._id)}><span>Assign to self <i className="fa fa-plus-square-o" aria-hidden="true"></i></span></button>)
           }else{
             if(data[i].handledby === cookies.username && (data[i].bookstate_int === 1 || data[i].bookstate_int === 3)){
               data[i].a.push(
-                <button className="btn btn-info rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 2)}>Ask more info</button>,
-                <button className="btn btn-success rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 5)}>Purchase book</button>,
-                <button className="btn btn-warning rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 4)}>Ask authorisation</button>
+                <button className="btn btn-info rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 2)}><span>Ask more info <i className="fa fa-question-circle" aria-hidden="true"></i></span></button>,
+                <button className="btn btn-success rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 5)}><span>Purchase book <i className="fa fa-check-square-o" aria-hidden="true"></i></span></button>,
+                <button className="btn btn-warning rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 4)}><span>Ask authorisation <i className="fa fa-question-circle" aria-hidden="true"></i></span></button>
               )
             }
           }
         }else{
           if(data[i].bookstate_int === 4){
-            data[i].a.push(<button className="btn btn-success" onClick={ () =>updateBookStatus(data[i]._id, 5)}>Approve purchase</button>)
-            data[i].a.push(<button className="btn btn-danger" onClick={ () => updateBookStatus(data[i]._id, 6)}>Deny purchase</button>)
+            data[i].a.push(<button className="btn btn-success" onClick={ () =>updateBookStatus(data[i]._id, 5)}><span>Approve purchase <i className="fa fa-thumbs-o-up" aria-hidden="true"></i></span></button>)
+            data[i].a.push(<button className="btn btn-danger" onClick={ () => updateBookStatus(data[i]._id, 6)}><span>Deny purchase <i className="fa fa-ban" aria-hidden="true"></i></span></button>)
           }
         }
       }
@@ -282,7 +300,7 @@ const Showtable = (props) => {
   let filterableColumns = [];
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState(data);
-  const [cookies, setCookie] = useCookies();
+  const [cookies] = useCookies();
   const [filterText, setFilterText] = useState('');
   const id = useParams().id;
   const columns = getColumns(cookies, props.pagetype, filterableColumns);
@@ -305,16 +323,11 @@ const Showtable = (props) => {
     const filteredItems = data.filter(
       item => {
         let result = false;
-          console.log("printing in loop")
-          console.log(filterableColumns)
         for(let i=0; i < filterableColumns.length; i++){
-          // console.log(item)
-          // console.log(filterableColumns[i])
           result = result || (item[filterableColumns[i]]+"").toLowerCase().includes(f);
         }
         return result;
       }
-      // item => item.name.toLowerCase().includes(f)
     );
     setFilteredData(filteredItems);
   }, [filterText]);
@@ -332,11 +345,11 @@ const Showtable = (props) => {
               <input type="text" className="mx-3 form-control" value={filterText} onChange={e => setFilterText(e.target.value)} aria-describedby="Search Input" placeholder="Enter search text" />
             </div>
           </div>
-            <DataTable
-              columns={columns}
-              data={filteredData}
-              pagination
-            />
+          <DataTable
+            columns={columns}
+            data={filteredData}
+            pagination
+          />
         </div>
       </div>
     </div>

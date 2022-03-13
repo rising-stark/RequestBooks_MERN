@@ -1,7 +1,7 @@
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken')
-const Book = require("../model/Book");
-const User = require("../model/User");
+const Book = require("../models/Book");
+const User = require("../models/User");
 
 const authenticate = async (req, res, next)=>{
   try {

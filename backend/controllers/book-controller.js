@@ -1,5 +1,5 @@
-const Book = require("../model/Book");
-const BookHistory = require("../model/BookHistory");
+const Book = require("../models/Book");
+const BookHistory = require("../models/BookHistory");
 
 const insertBookHistory = async (username, book) =>{
   try {
@@ -18,6 +18,7 @@ const insertBookHistory = async (username, book) =>{
 
 const getAllBookRequests = async (req, res, next) => {
   let books;
+  if(!req.cookies)return res.status(400).send("No book requests found");
   usertype = req.cookies.usertype;
   try {
     if(usertype == "user")
@@ -37,11 +38,11 @@ const getBookById = async (req, res, next) => {
   let book;
   try {
     book = await Book.findById(id);
-    if(req.cookies.usertype !== "user" || book.requestedby !== req.cookies.username)
-      return res.status(200).json({ book });
+    if(req.cookies.usertype === "user" && book.requestedby !== req.cookies.username)
+      return res.status(400).json({});
   } catch (err) {
     console.log(err);
-    return res.status(200).json({ book });
+    return res.status(400).json({});
   }
   return res.status(200).json({ book });
 };
@@ -50,7 +51,7 @@ const requestBook = async (req, res, next) => {
   const { name, author, description, price } = req.body;
   let book;
   try {
-    book = new Book({
+    book = await Book.create({
       name,
       author,
       description,
@@ -59,7 +60,6 @@ const requestBook = async (req, res, next) => {
       requestedby: req.cookies.username,
       handledby: "",
     });
-    await book.save();
     const bookhistory = await insertBookHistory(req.cookies.username, book)
     if(bookhistory == 0)
       return res.status(400).send("Unable to insert book history");

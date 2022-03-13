@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const booksController = require("../controllers/book-controller");
 const usersController = require("../controllers/user-controller");
-const historyController = require("../controllers/history-controller");
+const bookhistoryController = require("../controllers/bookhistory-controller");
+const chatController = require("../controllers/chat-controller");
 
 // Auth routes
 router.post("/register", usersController.registerUser);
@@ -19,11 +20,16 @@ router.put("/books/:id/updatestatus", booksController.updateBookStatus);
 router.put("/books/:id/updatehandledby", booksController.updateBookHandledBy);
 
 // BookHistory routes
-router.get("/bookhistory/:id", historyController.getBookHistory);
+router.get("/bookhistory/:id", bookhistoryController.getBookHistory);
 
 // User routes
 router.get("/users", usersController.getAllUsers);
 router.delete("/users/:id", usersController.deleteUser);
 router.post("/users/new", usersController.registerUser);
+
+// Chat routes
+router.get("/chats", chatController.getAllChats);
+router.get("/chats/:id", chatController.getMessages);
+router.post("/chats/:id", chatController.addMessage);
 
 module.exports = router;

@@ -17,6 +17,7 @@ import Header from "./components/Header";
 import About from "./components/About";
 import Footer from "./components/Footer";
 import Datatable from './components/Datatable';
+import Chat from './components/Chat/Chat';
 
 import NotFound from './components/NotFound';
 
@@ -29,12 +30,14 @@ function App() {
       <Header auth={cookies.username != null} usertype={cookies.usertype} />
       <Routes>
         <Route path="/" element={<PrivateRoute auth={cookies.username != null} redirectpath="login" />} >
-          <Route exact path="/" element={<Datatable pagetype="home" title="All book requests" />} />
+          <Route exact path="/" element={<PrivateRoute auth={false} redirectpath="/books" />} />>
           <Route exact path="books" element={<Datatable pagetype="home" title="All book requests" />} />
           <Route exact path="bookhistory/:id" element={<Datatable pagetype="bookhistory" title="Book history" />} />
+          <Route exact path="books/:id" element={<BookForm pagetype="show" />} />
+          <Route exact path="chats" element={<Chat />} />
+          <Route exact path="chats/:id" element={<Chat />} />
           <Route exact path="books" element={<PrivateRoute auth={cookies.usertype === "user"} redirectpath="/books" />} >
             <Route exact path="new" element={<BookForm pagetype="new" />} />
-            <Route exact path=":id" element={<BookForm pagetype="show" />} />
             <Route exact path=":id/edit" element={<BookForm pagetype="edit" />} />
           </Route>
           <Route exact path="users" element={<PrivateRoute auth={cookies.usertype === "admin"} redirectpath="/books" />} >
