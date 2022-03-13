@@ -117,7 +117,7 @@ const updateBook = async (req, res, next) => {
       description,
       price,
       bookstate_int: 3,
-      bookstate: "Updated book info from "+JSON.stringify(book) + " to " + JSON.stringify(req.body),
+      bookstate: "Updated book info to " + JSON.stringify(req.body),
     }, {new: true});
     const bookhistory = await insertBookHistory(req.cookies.username, book)
     if(bookhistory == 0)
