@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
 import DataTable from "react-data-table-component";
 import { useCookies } from 'react-cookie';
+import "./Datatable.css"
 
 const book_state_dict = {
   0: "New Book requested",
@@ -341,7 +342,7 @@ const Showtable = (props) => {
   }, [filterText]);
 
   return (
-    <div className="container datatable">
+    <div className="container">
       <div className="row my-4">
         <h3 className="text-center">{props.title}</h3>
         <div className="main">
@@ -353,11 +354,13 @@ const Showtable = (props) => {
               <input type="text" className="mx-3 form-control" value={filterText} onChange={e => setFilterText(e.target.value)} aria-describedby="Search Input" placeholder="Enter search text" />
             </div>
           </div>
-          <DataTable
-            columns={columns}
-            data={filteredData}
-            pagination
-          />
+          <div className="datatable border rounded">
+            <DataTable
+              columns={columns}
+              data={filteredData}
+              pagination
+            />
+          </div>
         </div>
       </div>
     </div>

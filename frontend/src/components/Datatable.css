@@ -1,0 +1,8 @@
+div.datatable div{
+  white-space: normal!important;
+}
+div.datatable div.rdt_TableCol{
+  font-size: 15px;
+  font-weight: 500;
+  background-color: #eee;
+}
