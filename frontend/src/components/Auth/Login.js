@@ -28,16 +28,14 @@ const Login = () => {
         },
         body: JSON.stringify({ username, password })
       });
-      const data = await res.json();
-      console.log(res.status)
-      console.log(data);
       if (res && res.status === 200) {
+        const data = await res.json();
         setCookie('jwt', data.jwt);
         setCookie('usertype', data.usertype);
         setCookie('username', data.username);
         alert("LoggedIn Successfully");
         history('/books')
-      } else if (res && res.status === 400) {
+      } else if (res && res.status === 401) {
         alert("Invalid crednetials");
       } else {
         alert("Server error. Try again after sometime")

@@ -41,8 +41,9 @@ function App() {
   }
 
   useEffect(() => {
-    isLoggedIn();
-  }, []);
+    if(cookies.username && cookies.username != null && cookies.username != undefined && cookies.username != "")
+      isLoggedIn();
+  }, [cookies]);
 
   return (
     <React.Fragment>

@@ -48,10 +48,10 @@ const login = async (req, res, next) => {
           "userid": user.id
         })
       } else {
-        return res.status(400).send("Invalid Credentials");
+        return res.status(401).send("Invalid Credentials");
       }
     } else {
-      return res.status(400).send("Invalid Credentials");
+      return res.status(401).send("Invalid Credentials");
     }
   } catch (err) {
     console.log(err);

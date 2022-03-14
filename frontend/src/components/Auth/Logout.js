@@ -1,3 +1,4 @@
+import {useEffect} from "react";
 import { useNavigate } from 'react-router';
 import { useCookies } from 'react-cookie';
 
@@ -14,7 +15,9 @@ const Logout = () => {
             console.log(error)
         }
     }
-    logout();
+    useEffect(() => {
+        logout();
+    });
     return (
         <div></div>
     );
