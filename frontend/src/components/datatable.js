@@ -6,12 +6,13 @@ import { useCookies } from 'react-cookie';
 const book_state_dict = {
   0: "New Book requested",
   1: "Book assigned to employee",
-  2: "More book info asked",
+  2: "More book info asked from user",
   3: "Updated book info",
-  4: "Admin authorisation requested",
-  5: "Book request approved",
-  6: "Book request denied",
-  7: "Book request deleted",
+  4: "Book price is over-budget. Admin authorisation requested",
+  5: "Book purchased",
+  6: "Book request approved by admin",
+  7: "Book request denied by admin",
+  8: "Book request cancelled"
 }
 
 function getColumns(cookies, pagetype, filterableColumns){
@@ -202,9 +203,10 @@ const getUserData = async (cookies) => {
     })
     const data = (await res.json()).users;
     if (res && res.status === 200) {
+      let key = 0;
       for (let i = 0; i < data.length; i++) {
         if(cookies.usertype === "admin"){
-        data[i].a1 = <button className="btn btn-danger rounded-pill" onClick={ () => deleteUser(data[i]._id)}>Delete this user</button>
+        data[i].a= [<button className="btn btn-danger rounded-pill" key={key++} onClick={ () => deleteUser(data[i]._id)}><span>Delete this user <i className="fa fa-trash" aria-hidden="true"></i></span></button>]
         }
       }
       return data;
@@ -241,49 +243,54 @@ const getBookData = async (cookies, columns) => {
     })
     const data = (await res.json()).books;
     if (res && res.status === 200) {
+      let key = 0;
       for (let i = 0; i < data.length; i++) {
         // U can chat only if the book is assigned to somebody and it is not deleted.
-        if([1, 2, 3, 4, 5].includes(data[i].bookstate_int) && (cookies.usertype === "user" || (cookies.usertype === "employee" && data[i].handledby === cookies.username)))
+        if([1, 2, 3, 4, 6, 7].includes(data[i].bookstate_int) && (cookies.usertype === "user" || (cookies.usertype === "employee" && data[i].handledby === cookies.username))){
           data[i].chat = <NavLink
             to={"/chats/" + data[i]._id} className="btn btn-primary rounded-pill">
             <span>Chat <i className="fa fa-commenting-o" aria-hidden="true"></i></span>
           </NavLink>
+        }
         data[i].a = [
           <NavLink
-            to={"/bookhistory/" + data[i]._id} className="btn btn-primary rounded-pill">
+            to={"/bookhistory/" + data[i]._id} className="btn btn-primary rounded-pill" key={key++}>
             <span>Book history <i className="fa fa-history" aria-hidden="true"></i></span>
           </NavLink>,
           <NavLink
-            to={"/books/" + data[i]._id} className="btn btn-info rounded-pill">
+            to={"/books/" + data[i]._id} className="btn btn-info rounded-pill" key={key++}>
             <span>Book details <i className="fa fa-info-circle" aria-hidden="true"></i></span>
           </NavLink>
         ]
         if(cookies.usertype === "user"){
           data[i].a.push()
           if(data[i].bookstate_int === 0){
-            data[i].a.push(<button className="btn btn-danger rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 7)}><span>Delete request <i className="fa fa-trash" aria-hidden="true"></i></span></button>)
+            data[i].a.push(<button className="btn btn-danger rounded-pill" key={key++} onClick={ () => updateBookStatus(data[i]._id, 8)}><span>Cancel request <i className="fa fa-trash" aria-hidden="true"></i></span></button>)
           }else if(data[i].bookstate_int === 2){
             data[i].a.push(<NavLink
-              to={"/books/" + data[i]._id + "/edit"} className="btn btn-warning rounded-pill">
+              to={"/books/" + data[i]._id + "/edit"} className="btn btn-warning rounded-pill" key={key++}>
               <span>Update book details <i className="fa fa-edit" aria-hidden="true"></i></span>
             </NavLink>)
           }
         }else if(cookies.usertype === "employee"){
           if(data[i].bookstate_int === 0){
-            data[i].a.push(<button className="btn btn-danger rounded-pill" onClick={ () => updateBookHandledBy(data[i]._id)}><span>Assign to self <i className="fa fa-plus-square-o" aria-hidden="true"></i></span></button>)
-          }else{
-            if(data[i].handledby === cookies.username && (data[i].bookstate_int === 1 || data[i].bookstate_int === 3)){
+            data[i].a.push(<button className="btn btn-danger rounded-pill" key={key++} onClick={ () => updateBookHandledBy(data[i]._id)}><span>Assign to self <i className="fa fa-plus-square-o" aria-hidden="true"></i></span></button>)
+          }else if(data[i].handledby === cookies.username){
+            if(data[i].bookstate_int === 1 || data[i].bookstate_int === 3 || data[i].bookstate_int === 6){
               data[i].a.push(
-                <button className="btn btn-info rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 2)}><span>Ask more info <i className="fa fa-question-circle" aria-hidden="true"></i></span></button>,
-                <button className="btn btn-success rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 5)}><span>Purchase book <i className="fa fa-check-square-o" aria-hidden="true"></i></span></button>,
-                <button className="btn btn-warning rounded-pill" onClick={ () => updateBookStatus(data[i]._id, 4)}><span>Ask authorisation <i className="fa fa-question-circle" aria-hidden="true"></i></span></button>
+                <button className="btn btn-info rounded-pill" key={key++} onClick={ () => updateBookStatus(data[i]._id, 2)}><span>Ask more info <i className="fa fa-question-circle" aria-hidden="true"></i></span></button>,
+                <button className="btn btn-success rounded-pill" key={key++} onClick={ () => updateBookStatus(data[i]._id, 5)}><span>Purchase book <i className="fa fa-check-square-o" aria-hidden="true"></i></span></button>,
               )
+              if(!data[i].isAuthorised)
+                data[i].a.push(<button className="btn btn-warning rounded-pill" key={key++} onClick={ () => updateBookStatus(data[i]._id, 4)}><span>Ask authorisation <i className="fa fa-question-circle" aria-hidden="true"></i></span></button>)
+            }else if(data[i].bookstate_int === 7){
+              data[i].a.push(<button className="btn btn-danger rounded-pill" key={key++} onClick={ () => updateBookStatus(data[i]._id, 8)}><span>Cancel request <i className="fa fa-trash" aria-hidden="true"></i></span></button>)
             }
           }
         }else{
           if(data[i].bookstate_int === 4){
-            data[i].a.push(<button className="btn btn-success" onClick={ () =>updateBookStatus(data[i]._id, 5)}><span>Approve purchase <i className="fa fa-thumbs-o-up" aria-hidden="true"></i></span></button>)
-            data[i].a.push(<button className="btn btn-danger" onClick={ () => updateBookStatus(data[i]._id, 6)}><span>Deny purchase <i className="fa fa-ban" aria-hidden="true"></i></span></button>)
+            data[i].a.push(<button className="btn btn-success rounded-pill" key={key++} onClick={ () =>updateBookStatus(data[i]._id, 6)}><span>Approve purchase <i className="fa fa-thumbs-o-up" aria-hidden="true"></i></span></button>)
+            data[i].a.push(<button className="btn btn-danger rounded-pill" key={key++} onClick={ () => updateBookStatus(data[i]._id, 7)}><span>Deny purchase <i className="fa fa-ban" aria-hidden="true"></i></span></button>)
           }
         }
       }
@@ -297,22 +304,23 @@ const getBookData = async (cookies, columns) => {
 }
 
 const Showtable = (props) => {
+  let pagetype = props.pagetype;
   let filterableColumns = [];
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState(data);
   const [cookies] = useCookies();
   const [filterText, setFilterText] = useState('');
   const id = useParams().id;
-  const columns = getColumns(cookies, props.pagetype, filterableColumns);
+  const columns = getColumns(cookies, pagetype, filterableColumns);
 
   useEffect(() => {
-    if(cookies.usertype ==="admin" && props.pagetype === "users")
+    if(cookies.usertype ==="admin" && pagetype === "users")
       getUserData(cookies).then((data) => setData(data));
-    else if(props.pagetype === "home")
+    else if(pagetype === "home")
       getBookData(cookies, columns).then((data) => setData(data));
-    else if(props.pagetype === "bookhistory")
+    else if(pagetype === "bookhistory")
       getBookHistoryData(id).then((data) => setData(data));
-  }, [id, props, cookies]);
+  }, [id, pagetype, cookies]);
 
   useEffect(() => {
     setFilteredData(data);

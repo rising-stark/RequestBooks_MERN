@@ -37,7 +37,7 @@ const sendEmail = async (id, bookstate) => {
         from: process.env.EMAIL,
         to: "codingfever44@gmail.com",
         subject: `Status of your book ${id} has been changed`,
-        test: bookstate,
+        text: bookstate,
     };
 
     transporter.sendMail(mailData, (error, info) => {
@@ -131,18 +131,22 @@ const updateBook = async (req, res, next) => {
 const updateBookStatus = async (req, res, next) => {
   const id = req.params.id;
   const { bookstate, bookstate_int } = req.body;
-  let book;
+  let book, newbook;
   try {
-    book = await Book.findByIdAndUpdate(id, {
+    book = await Book.findById(id);
+    if((req.cookies.usertype === "user" && book.requestedby !== req.cookies.username) || (req.cookies.usertype === "employee" && book.handledby !== req.cookies.username))
+      return res.status(401).send("Not allowed");
+    newbook = await Book.findByIdAndUpdate(id, {
       bookstate,
-      bookstate_int
+      bookstate_int,
+      isAuthorised: book.isAuthorised || (bookstate_int === 6)
     }, {new: true});
-    const bookhistory = await insertBookHistory(req.cookies.username, book)
+    const bookhistory = await insertBookHistory(req.cookies.username, newbook)
     if(bookhistory == 0)
       return res.status(400).send("Unable to insert book history");
 
     // notify user using email if the book request is either aproved or denied
-    if(bookstate_int === 5 || bookstate_int === 6)
+    if(bookstate_int === 5 || (req.cookies.usertype === "employee" && bookstate_int === 8))
       sendEmail(id, bookstate);
     return res.status(200).send("Book status updated");
   } catch (err) {

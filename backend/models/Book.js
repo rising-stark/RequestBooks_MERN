@@ -36,6 +36,11 @@ const bookSchema = new mongoose.Schema({
   handledby: {
     type: String
   },
+  isAuthorised: {
+    type: Boolean,
+    required: true,
+    default: false
+  },
 });
 
 module.exports = mongoose.model("Book", bookSchema);

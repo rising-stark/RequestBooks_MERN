@@ -35,7 +35,7 @@ const addMessage = async (req, res, next) => {
       3. the book is not requested by this user
       4. usertype is admin
     */
-    if([0, 6, 7].includes(book.bookstate_int) || req.cookies.usertype === "admin" || (req.cookies.usertype === "user" && book.requestedby !== req.cookies.username) || (req.cookies.usertype === "employee" && book.handledby !== req.cookies.username))
+    if([0, 5, 8].includes(book.bookstate_int) || req.cookies.usertype === "admin" || (req.cookies.usertype === "user" && book.requestedby !== req.cookies.username) || (req.cookies.usertype === "employee" && book.handledby !== req.cookies.username))
       return res.status(401).send("Not allowed");
 
     const { message } = req.body;

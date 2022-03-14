@@ -64,7 +64,7 @@ const BookForm = (props) => {
       e.preventDefault();
       const {name, author, description, price} = input;
       let URL = "http://localhost:5000/books/new", method = "POST", msg = "requested";
-      if(id !== undefined && props.pagetype === "update"){
+      if(id !== undefined && props.pagetype === "edit"){
         URL = `http://localhost:5000/books/${id}/update`;
         method = "PUT";
         msg = "updated";
