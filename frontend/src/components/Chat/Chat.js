@@ -48,7 +48,6 @@ export default function ChatContainer() {
       console.log(res.status);
       if (res && res.status === 200) {
         const messages = (await res.json()).messages;
-        console.log(messages);
         return messages || [];
       }
     } catch (error) {
@@ -91,7 +90,7 @@ export default function ChatContainer() {
       });
       socket.current = io("http://localhost:5000/");
       socket.current.emit("addUser", cookies.username);
-      setChats(chats.push(receiver));
+      // setChats(chats.push(receiver));
       getMessages().then((data) => setMessages(data));
     }
   }, [id]);
@@ -100,7 +99,6 @@ export default function ChatContainer() {
     try{
       e.preventDefault();
       const {message} = input;
-      socket.current.emit("sendMsg", {receiver, message});
 
       const res = await fetch(`http://localhost:5000/chats/${id}`, {
         method: "POST",
@@ -112,10 +110,9 @@ export default function ChatContainer() {
       });
       const msg = (await res.json()).msg;
       if(res && res.status === 200){
-        console.log("msg delivered successfully");
-        console.log(msg)
         const msgs = [...messages];
-        msgs.push({ fromSelf: true, message });
+        socket.current.emit("sendMsg", msg);
+        msgs.push(msg);
         setMessages(msgs);
         setInput({message: ""});
       }
@@ -131,7 +128,7 @@ export default function ChatContainer() {
     if (socket.current) {
       socket.current.on("msgReceive", (message) => {
         const msgs = [...messages];
-        msgs.push({ message });
+        msgs.push(message);
         setMessages(msgs);
       });
     }
@@ -167,11 +164,11 @@ export default function ChatContainer() {
         {/*     } */}
         {/*   </div> */}
         {/* </div> */}
-        <div className="col-md-5 border p-0">
+        <div className="col-md-6 border p-0">
           {
             id?
             <>
-              <h4 className="header border-bottom bg-light p-1 rounded-2 text-center">Chatting with: <span className="bg-warning rounded-pill p-1">{receiver}</span></h4>
+              <h4 className="header border-bottom bg-light p-1 rounded-2 text-center">Chatting with: <span className="bg-warning rounded-pill p-1">{receiver}</span> for book request <span className="bg-primary bg-opacity-50 rounded-pill p-1">{id}</span></h4>
               <div className="bg-primary bg-opacity-10 h-400 overflow-auto p-1">
                 {
                   messages.length === 0?
@@ -180,12 +177,12 @@ export default function ChatContainer() {
                     <>
                       {
                         messages.map((message, index) => {
-                          let selfMsg = message.fromSelf || (message.sender === cookies.username);
+                          let selfMsg = message.sender === cookies.username;
                           return (
                             <div ref={scrollRef} key={index} className={`position-relative w-100 ${selfMsg? "text-end" : ""}`}>
                               <div className={`msgContainer ${selfMsg? "bg-info" : "bg-warning"} bg-opacity-75 px-3 rounded-pill d-inline-block`}>
                                 <div className="msg text-start">{message.message}</div>
-                                {/* <div className="msgTime text-muted text-end">{message.timestamp}</div> */}
+                                <div className="msgTime text-muted text-end">{message.timestamp}</div>
                               </div>
                             </div>
                           );

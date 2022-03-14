@@ -5,8 +5,6 @@ const getAllChats = async (req, res, next) => {
   try {
     const username = req.cookies.username;
     const chats = await Chat.find({$or: [{sender: username }, {receiver: username}]}).sort({ timestamp: 1 }).distinct("bookid");
-    console.log("chats")
-    console.log(chats)
     return res.status(200).json({chats});
   } catch (err) {
     console.log(err);
