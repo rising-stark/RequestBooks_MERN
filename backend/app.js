@@ -1,6 +1,6 @@
 const http = require("http");
 const express = require("express");
-const mongoose = require("mongoose");
+const mongooseConnect = require('./helpers/dbConnect');
 const dotenv = require("dotenv");
 const cors = require("cors");
 const cookieParser = require('cookie-parser');
@@ -26,10 +26,9 @@ app.use("/", router);
 
 dotenv.config();
 
-mongoose
-  .connect(process.env.DB_URI)
-  .then(() => console.log("Connected To Database"))
-  .catch((err) => console.log(err));
+mongooseConnect.dbconnect()
+                .on('error', (err) => console.log("connection to db failed"))
+
 
 server.listen(process.env.PORT, () => console.log(`Server started on ${process.env.PORT}`)
 );

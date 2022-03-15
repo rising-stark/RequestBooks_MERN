@@ -25,9 +25,9 @@ const authenticate = async (req, res, next)=>{
 }
 
 const login = async (req, res, next) => {
-  const { username, password } = req.body;
-  let user;
   try {
+    const { username, password } = req.body;
+    let user;
     user = await User.findOne({ username });
     if (user) {
       // Verify Password
@@ -66,49 +66,48 @@ const registerUser = async (req, res, next) => {
   if(req.cookies && req.cookies.usertype === "admin")
     usertype = "employee";
   try {
-    user = new User({
+    user = await User.create({
       username,
       email,
       name,
       password,
       usertype
     });
-    console.log(user);
-    await user.save();
+    return res.status(200).send("Registered new user");
   } catch (err) {
     console.log(err);
     return res.status(400).send("Server error");
   }
-  return res.status(200).send("Registered new user");
 };
 
 const getAllUsers = async (req, res, next) => {
-  let users;
-  usertype = req.cookies.usertype;
   try {
-    if(usertype == "admin")
+    let users;
+    usertype = req.cookies.usertype;
+    if(usertype == "admin"){
       users = await User.find();
+      return res.status(200).json({ users });
+    }else
+      return res.status(400).send("Not allowed");
   } catch (err) {
     console.log(err);
     return res.status(400).send("No users found");
   }
-  // console.log(users)
-  return res.status(200).json({ users });
 };
 
 const deleteUser = async (req, res, next) => {
-  if(req.cookies.usertype !== "admin"){
-    return res.status(400).send("No users found");
-  }
-  const id = req.params.id;
-  let user;
   try {
+    if(req.cookies.usertype !== "admin"){
+      return res.status(400).send("No users found");
+    }
+    const id = req.params.id;
+    let user;
     await User.findByIdAndRemove(id);
+    return res.status(200).send("User Successfully Deleted");
   } catch (err) {
     console.log(err);
     return res.status(404).send("Unable To Delete this user");
   }
-  return res.status(200).send("User Successfully Deleted");
 };
 
 const logout = async (req, res, next) => {

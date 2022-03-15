@@ -1,3 +1,4 @@
+const User = require("../models/User");
 const Book = require("../models/Book");
 const BookHistory = require("../models/BookHistory");
 const nodemailer = require('nodemailer');
@@ -16,7 +17,7 @@ const insertBookHistory = async (username, book) =>{
   }
 }
 
-const sendEmail = async (id, bookstate) => {
+const sendEmail = async (id, bookstate, email) => {
   try{
     /*
       To use this email service, go to this link and turn off the less secure app access for this gmail account
@@ -31,20 +32,20 @@ const sendEmail = async (id, bookstate) => {
         },
         secure: true,
     });
-    console.log(process.env.EMAIL)
-    console.log(process.env.PASSWORD)
     const mailData = {
         from: process.env.EMAIL,
-        to: "codingfever44@gmail.com",
+        to: email,
         subject: `Status of your book ${id} has been changed`,
         text: bookstate,
     };
 
     transporter.sendMail(mailData, (error, info) => {
-      if (error) {
-        return console.log(error);
+      if (error){
+        console.log("Mail could not be sent because of this error");
+        console.log(error);
+      } else{
+        console.log({ message: "Mail send", message_id: info.messageId });
       }
-      console.log({ message: "Mail send", message_id: info.messageId });
     });
   } catch (err) {
     console.log("Mail could not be sent because of this error");
@@ -69,9 +70,9 @@ const getAllBookRequests = async (req, res, next) => {
 };
 
 const getBookById = async (req, res, next) => {
-  const id = req.params.id;
-  let book;
   try {
+    const id = req.params.id;
+    let book;
     book = await Book.findById(id);
     if(req.cookies.usertype === "user" && book.requestedby !== req.cookies.username)
       return res.status(400).json({});
@@ -146,8 +147,10 @@ const updateBookStatus = async (req, res, next) => {
       return res.status(400).send("Unable to insert book history");
 
     // notify user using email if the book request is either aproved or denied
-    if(bookstate_int === 5 || (req.cookies.usertype === "employee" && bookstate_int === 8))
-      sendEmail(id, bookstate);
+    if(bookstate_int === 5 || (req.cookies.usertype === "employee" && bookstate_int === 8)){
+      const user = await User.findOne({req.cookies.username});
+      sendEmail(id, bookstate, user.email);
+    }
     return res.status(200).send("Book status updated");
   } catch (err) {
     console.log(err);
