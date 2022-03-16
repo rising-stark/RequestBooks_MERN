@@ -96,9 +96,20 @@ const UserForm = (props) => {
               <label htmlFor="password" className="form-label">Confirm Password</label>
               <input type="password" className="form-control" name="cnfpassword" value={input.cnfpassword} onChange={handleInput} aria-describedby="password" minLength="6" placeholder="Re-enter your password" required />
             </div>
-            <button type="submit" className="btn btn-outline-primary w-100 mt-4 rounded-pill">
-            Register
-            </button>
+            <div className="d-flex justify-content-evenly mt-4">
+              {
+                props.usertype === "admin"?
+                  <NavLink
+                    to={"/books"} className="btn btn-danger col-4">
+                    <span>Cancel/Back <i className="fa fa-reply" aria-hidden="true"></i></span>
+                  </NavLink>
+                :
+                  <></>
+              }
+              <button type="submit" className="btn btn-outline-primary col-4 rounded-pill">
+              Register
+              </button>
+            </div>
           </form>
         </div>
       </div>

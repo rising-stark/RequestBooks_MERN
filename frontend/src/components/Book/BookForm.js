@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
 
 const heading_dict = {
   "new": "Please fill in the following details to request a new book",
@@ -113,14 +113,20 @@ const BookForm = (props) => {
               <label htmlFor="Price" className="form-label">Price ($)</label>
               <input type="number" className="form-control" name="price" value={input.price} onChange={handleInput} min="0" max="1000" aria-describedby="price" placeholder="Enter book price" required />
             </div>
-            {
-              (props.pagetype === "new" || props.pagetype === "edit")?
-                <button type="submit" className="btn btn-primary col-4 offset-4">
-                  {btn}
-                </button>
-              :
-                <></>
-            }
+            <div className="d-flex justify-content-evenly mt-4">
+              <NavLink
+                to={"/books"} className="btn btn-danger col-4">
+                <span>Cancel/Back <i className="fa fa-reply" aria-hidden="true"></i></span>
+              </NavLink>
+              {
+                (props.pagetype === "new" || props.pagetype === "edit")?
+                  <button type="submit" className="btn btn-primary col-4">
+                    {btn}
+                  </button>
+                :
+                  <></>
+              }
+            </div>
           </form>
         </div>
       </div>
