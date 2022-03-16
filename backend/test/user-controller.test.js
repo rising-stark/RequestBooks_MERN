@@ -39,7 +39,7 @@ describe('usersController.authenticate() tests', () => {
     
     // request for autheticate with the jwt received from login cookies
     const req2 = {
-      cookies: { jwt }
+      cookies: { username: 'admin', usertype: 'user', jwt }
     };
     const res2 = mocks.createResponse();
     await usersController.authenticate(req2, res2);
@@ -48,7 +48,7 @@ describe('usersController.authenticate() tests', () => {
 
   test('Send an invalid jwt token for Invalid credentials for login. Expect statusCode toBe 401, expect cookies values toBeUndefined', async () => {
     const req = {
-      cookies: { jwt: 'sfgfgdfgdf' }
+      cookies: { username: 'admin', usertype: 'user', jwt: 'sfgfgdfgdf' }
     };
     const res = mocks.createResponse();
     await usersController.authenticate(req, res);
@@ -99,7 +99,7 @@ describe('usersController.registerUser() tests', () => {
 });
 
 describe('usersController.deleteUser() tests', () => {
-  test('First we login using the credentials to get the userid and then try to to delete the previously registered user with username = adminnew being a non-admin. Expect statusCode toBe 404', async () => {
+  test('First we login using the credentials to get the userid and then try to to delete the previously registered user with username = adminnew being a non-admin. Expect statusCode toBe 400', async () => {
     const req = {
       body: { username: 'adminnew', password: "123456" }
     };
@@ -109,11 +109,12 @@ describe('usersController.deleteUser() tests', () => {
 
     // request for delete user with the id received from login cookies
     const req2 = {
-      params: { id }
+      params: { id },
+      cookies: { username: "adminnew", usertype: "user" }
     };
     const res2 = mocks.createResponse();
     await usersController.deleteUser(req2, res2);
-    expect(res2.statusCode).toBe(404);
+    expect(res2.statusCode).toBe(400);
   });
 
   test('First we login using the credentials to get the userid and then try to to delete the previously registered user with username = adminnew being an admin. Expect statusCode toBe 200', async () => {
@@ -127,7 +128,7 @@ describe('usersController.deleteUser() tests', () => {
     // request for delete user with the id received from login cookies
     const req2 = {
       params: { id },
-      cookies: { usertype: "admin" }
+      cookies: { username: "adminnew", usertype: "admin" }
     };
     const res2 = mocks.createResponse();
     await usersController.deleteUser(req2, res2);
@@ -137,7 +138,9 @@ describe('usersController.deleteUser() tests', () => {
 
 describe('usersController.getAllUsers() tests', () => {
   test('Trying to fetch all users without sending the usertype = admin in the cookies. Expect statusCode toBe 400', async () => {
-    const req = {};
+    const req = {
+      cookies: { username: "adminnew" }
+    };
     const res = mocks.createResponse();
     await usersController.getAllUsers(req, res);
     expect(res.statusCode).toBe(400);
@@ -145,7 +148,7 @@ describe('usersController.getAllUsers() tests', () => {
 
   test('Trying to fetch all users sending the usertype = admin in the cookies. Expect statusCode toBe 200', async () => {
     const req = {
-      cookies: { usertype: "admin" }
+      cookies: { username: "adminnew", usertype: "admin" }
     };
     const res = mocks.createResponse();
     await usersController.getAllUsers(req, res);

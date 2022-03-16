@@ -60,12 +60,12 @@ const login = async (req, res, next) => {
 };
 
 const registerUser = async (req, res, next) => {
-  const { username, email, name, password } = req.body;
-  let user;
-  usertype = "user";
-  if(req.cookies && req.cookies.usertype === "admin")
-    usertype = "employee";
   try {
+    const { username, email, name, password } = req.body;
+    let user;
+    usertype = "user";
+    if(req.cookies && req.cookies.usertype === "admin")
+      usertype = "employee";
     user = await User.create({
       username,
       email,
@@ -82,6 +82,7 @@ const registerUser = async (req, res, next) => {
 
 const getAllUsers = async (req, res, next) => {
   try {
+    if(!req.cookies || !req.cookies.username)return res.status(400).send("Login first");
     let users;
     usertype = req.cookies.usertype;
     if(usertype == "admin"){
@@ -97,6 +98,7 @@ const getAllUsers = async (req, res, next) => {
 
 const deleteUser = async (req, res, next) => {
   try {
+    if(!req.cookies || !req.cookies.username)return res.status(400).send("Login first");
     if(req.cookies.usertype !== "admin"){
       return res.status(400).send("No users found");
     }
@@ -106,7 +108,7 @@ const deleteUser = async (req, res, next) => {
     return res.status(200).send("User Successfully Deleted");
   } catch (err) {
     console.log(err);
-    return res.status(404).send("Unable To Delete this user");
+    return res.status(400).send("Unable To Delete this user");
   }
 };
 

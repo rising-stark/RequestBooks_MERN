@@ -9,10 +9,12 @@ const getBookHistory = async (req, res, next) => {
       if(req.cookies.username !== book.requestedby)
         grantAccess = false;
     }
-    if(grantAccess)
+    if(grantAccess){
       history = await BookHistory.find({bookid: id});
-    console.log(history)
-    return res.status(200).json({ history });
+      return res.status(200).json({ history });
+    }else{
+      return res.status(400).json({ });
+    }
   } catch (err) {
     console.log(err);
     return res.status(400).send("No book history found");
