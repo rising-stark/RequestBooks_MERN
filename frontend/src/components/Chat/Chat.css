@@ -15,6 +15,18 @@
 .minh-400{
   min-height: 400px;
 }
+.maxw-75{
+  max-width: 75%;
+}
 .msgTime{
   font-size: 6px;
+}
+.msgContainer{
+  border-radius: 25px;
+}
+.msgContainer.rounded-left{
+  border-bottom-left-radius: 0!important;
+}
+.msgContainer.rounded-right{
+  border-bottom-right-radius: 0!important;
 }

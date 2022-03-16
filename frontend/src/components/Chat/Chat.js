@@ -26,11 +26,8 @@ export default function ChatContainer() {
         method: "GET",
         credentials: "include"
       });
-      console.log(res.status);
       if (res && res.status === 200) {
         const chats = (await res.json()).chats;
-        console.log("here printing chats");
-        console.log(chats);
         return chats || [];
       }else {
         alert("Server error. Try again later")
@@ -46,7 +43,6 @@ export default function ChatContainer() {
         method: "GET",
         credentials: "include"
       });
-      console.log(res.status);
       if (res && res.status === 200) {
         const messages = (await res.json()).messages;
         return messages || [];
@@ -63,7 +59,6 @@ export default function ChatContainer() {
         method: "GET",
         credentials: "include"
       });
-      console.log(res.status);
       let book;
       if (res && res.status === 200) {
         const book = (await res.json()).book;
@@ -180,8 +175,8 @@ export default function ChatContainer() {
                           let selfMsg = message.sender === cookies.username;
                           return (
                             <div ref={scrollRef} key={index} className={`position-relative w-100 ${selfMsg? "text-end" : ""}`}>
-                              <div className={`msgContainer ${selfMsg? "bg-info" : "bg-warning"} bg-opacity-75 px-3 rounded-pill d-inline-block`}>
-                                <div className="msg text-start">{message.message}</div>
+                              <div className={`msgContainer maxw-75 ${selfMsg? "bg-info rounded-right" : "bg-warning rounded-left"} bg-opacity-75 px-3 d-inline-block`}>
+                                <div className="msg text-start" style={{whiteSpace: "pre-line"}}>{message.message}</div>
                                 <div className="msgTime text-muted text-end">{message.timestamp}</div>
                               </div>
                             </div>
