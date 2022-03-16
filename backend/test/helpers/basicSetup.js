@@ -1,5 +1,4 @@
 const mongooseConnect = require('../../helpers/dbConnect');
-const mongoose = require('mongoose');
 
 let basicSetup = () => {
   beforeAll((done)=>{

@@ -2,11 +2,13 @@ const basicSetup = require('./helpers/basicSetup')
 const User = require('../models/User');
 const usersController = require("../controllers/user-controller");
 const mocks = require('node-mocks-http');
+const {createAdminUser} = require('../helpers/createAdmin');
 
 basicSetup();
 
 describe('usersController.login() tests', () => {
   test('Valid credentials for login. Expect statusCode toBe 200, expect correct cookie values with usertype = admin', async () => {
+    await createAdminUser();
     const req = {
       body: { username: 'admin', password: "123456" }
     };

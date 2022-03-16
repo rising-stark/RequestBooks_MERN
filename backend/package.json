@@ -4,6 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+    "prestart": "jest ./test",
     "start": "nodemon app.js",
     "test": "jest ./test"
   },
@@ -23,6 +24,7 @@
     "socket.io": "^4.4.1"
   },
   "devDependencies": {
-    "jest": "^27.5.1"
+    "jest": "^27.5.1",
+    "node-mocks-http": "^1.11.0"
   }
 }
