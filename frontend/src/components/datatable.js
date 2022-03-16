@@ -315,6 +315,7 @@ const Showtable = (props) => {
   const columns = getColumns(cookies, pagetype, filterableColumns);
 
   useEffect(() => {
+    setData([])
     if(cookies.usertype ==="admin" && pagetype === "users")
       getUserData(cookies).then((data) => setData(data));
     else if(pagetype === "home")

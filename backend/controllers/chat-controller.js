@@ -3,8 +3,26 @@ const Book = require("../models/Book");
 
 const getAllChats = async (req, res, next) => {
   try {
+    if(!req.cookies || !req.cookies.username)return res.status(400).send("Login first");
     const username = req.cookies.username;
-    const chats = await Chat.find({$or: [{sender: username }, {receiver: username}]}).sort({ timestamp: 1 }).distinct("bookid");
+    const records = await Chat.aggregate(
+            [
+              {$match: {$or: [{sender: username }, {receiver: username}]} },
+              {$group: {_id: { bookid: "$bookid", sender: "$sender", receiver: "$receiver" } } }
+            ]
+        );
+    let chats = [];
+    let uniqueBookids = new Set();
+    for(let i = 0; i < records.length; i++){
+      const {bookid, receiver, sender} = records[i]._id;
+      if(!uniqueBookids.has(bookid)){
+        uniqueBookids.add(bookid)
+        chats.push({
+          bookid,
+          username: (receiver === username)? sender : receiver,
+        })
+      }
+    }
     return res.status(200).json({chats});
   } catch (err) {
     console.log(err);
@@ -14,6 +32,7 @@ const getAllChats = async (req, res, next) => {
 
 const getMessages = async (req, res, next) => {
   try {
+    if(!req.cookies || !req.cookies.username)return res.status(400).send("Login first");
     let id = req.params.id;
     const { sender, receiver } = req.body;
     const messages = await Chat.find({bookid: id}).sort({ timestamp: 1 });
@@ -26,6 +45,7 @@ const getMessages = async (req, res, next) => {
 
 const addMessage = async (req, res, next) => {
   try {
+    if(!req.cookies || !req.cookies.username)return res.status(400).send("Login first");
     let id = req.params.id;
     let book = await Book.findById(id);
     /*

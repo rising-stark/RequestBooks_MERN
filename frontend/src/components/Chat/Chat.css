@@ -2,6 +2,19 @@
   min-height: 400px;
   max-height: 400px;
 }
+.h-550{
+  min-height: 550px;
+  max-height: 550px;
+}
+.maxh-400{
+  max-height: 400px;
+}
+.maxh-500{
+  max-height: 500px;
+}
+.minh-400{
+  min-height: 400px;
+}
 .msgTime{
   font-size: 6px;
 }
