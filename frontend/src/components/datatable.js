@@ -357,6 +357,24 @@ const Showtable = (props) => {
           </div>
           <div className="datatable border rounded">
             <DataTable
+              conditionalRowStyles={
+                [
+                  {
+                    when: (row) => row.bookstate_int === 5,
+                    style: {
+                      backgroundColor: "seagreen",
+                      color: "white",
+                    }
+                  },
+                  {
+                    when: (row) => row.bookstate_int === 8,
+                    style: {
+                      backgroundColor: "darkred",
+                      color: "white",
+                    }
+                  },
+                ]
+              }
               columns={columns}
               data={filteredData}
               pagination
