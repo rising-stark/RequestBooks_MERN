@@ -34,6 +34,11 @@ const getMessages = async (req, res, next) => {
   try {
     if(!req.cookies || !req.cookies.username)return res.status(400).send("Login first");
     let id = req.params.id;
+    let book = await Book.findById(id);
+
+    if([0, 5, 8].includes(book.bookstate_int) || req.cookies.usertype === "admin" || (req.cookies.usertype === "user" && book.requestedby !== req.cookies.username) || (req.cookies.usertype === "employee" && book.handledby !== req.cookies.username))
+      return res.status(400).send("Not allowed");
+
     const { sender, receiver } = req.body;
     const messages = await Chat.find({bookid: id}).sort({ timestamp: 1 });
     return res.status(200).json({messages});
@@ -56,7 +61,7 @@ const addMessage = async (req, res, next) => {
       4. usertype is admin
     */
     if([0, 5, 8].includes(book.bookstate_int) || req.cookies.usertype === "admin" || (req.cookies.usertype === "user" && book.requestedby !== req.cookies.username) || (req.cookies.usertype === "employee" && book.handledby !== req.cookies.username))
-      return res.status(401).send("Not allowed");
+      return res.status(400).send("Not allowed");
 
     const { message } = req.body;
     let receiver = book.handledby;
